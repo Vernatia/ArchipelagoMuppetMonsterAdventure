@@ -19,10 +19,13 @@ class MMAClient(BizHawkClient):
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
-            # Check ROM name/patch version
+            # NTSC
             rom_name = ((await bizhawk.read(ctx.bizhawk_ctx, [(0x009274, 11, "MainRAM")]))[0]).decode("ascii")
             if rom_name != "SLUS_012.38":
-                return False
+                # PAL
+                rom_name = ((await bizhawk.read(ctx.bizhawk_ctx, [(0x00928C, 11, "MainRAM")]))[0]).decode("ascii")
+                if rom_name != "SCES_024.03":
+                    return False
         except bizhawk.RequestFailedError:
             return False
 
