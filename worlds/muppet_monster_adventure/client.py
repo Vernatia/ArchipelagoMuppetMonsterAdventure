@@ -50,6 +50,7 @@ class MMAClient(BizHawkClient):
             logger.info(f"Pickup flags is: {int(pickups_flag[0].hex(), base=16):024b}")
             logger.info(f"{self.extract_amulet_flags(int(pickups_flag[0].hex(), base=16))}")
 
+        # TODO: PAL differences?
         # Always have all powers
         await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, (255).to_bytes(2, "little"), "MainRAM")])
 
