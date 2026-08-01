@@ -41,6 +41,7 @@ class MMAClient(BizHawkClient):
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
 
+        # TODO: PAL differences?
         # Logging changes to amulet pickups
         pickups_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
 
