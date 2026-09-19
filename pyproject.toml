@@ -1,0 +1,13 @@
+[tool.basedpyright]
+include = [
+    "rule_builder",
+    "test",
+    "typings",
+    "WebHostLib",
+    "worlds",
+    "worlds/muppet_monster_adventure",
+]
+exclude= [
+    "**/__pycache__",
+    "worlds/**/*",
+]
