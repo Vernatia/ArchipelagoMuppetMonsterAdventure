@@ -37,7 +37,7 @@ class MMAAmuletState:
         self.flags = [False, False, False, False]
         self.offset = offset
 
-    def get_changes(self, data: int) -> list[int]:
+    def process_changes(self, data: int) -> list[int]:
         new_flags = self.get_amulet_flags(data)
         changes: list[int] = []
         for i in range(4):
@@ -96,6 +96,7 @@ class MMAClient(BizHawkClient):
 
         # State init
         self.last_amulets_flags: list[bytes] = [bytes(0)]
+        self.level_name: str = ""
         self.game_state = MMAGameState()
 
         return True
@@ -103,15 +104,18 @@ class MMAClient(BizHawkClient):
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
 
+        if await self.update_level_name(ctx):
+            logger.info(f"Level changed to '{self.level_name}'")
+
         # TODO: PAL differences?
         amulets_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
 
-        if self.last_amulets_flags != amulets_flag:
+        if amulets_flag != self.last_amulets_flags:
             self.last_amulets_flags = amulets_flag
             flags_int = int(amulets_flag[0].hex(), base=16)
             # Extract amulet pickup changes
             for name, state in self.game_state.amulets.items():
-                changes = state.get_changes(flags_int)
+                changes = state.process_changes(flags_int)
                 # TODO: emit location collection
                 if len(changes) > 0:
                     logger.info(f"Amulet - '{name}' changes - {changes}")
@@ -119,3 +123,18 @@ class MMAClient(BizHawkClient):
         # Write powers
         await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])
         return
+
+    async def update_level_name(self, ctx: "BizHawkClientContext") -> bool:
+        # TODO: not exactly sure how many bytes the name uses.
+        level_bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(0x0B87F8, 10, "MainRAM")]))[0]
+        level_str = ""
+        for b in level_bytes:
+            # End of name string is denoted by null char.
+            if b == 0:
+                break
+            level_str += chr(b)
+
+        if level_str != self.level_name:
+            self.level_name = level_str
+            return True
+        return False
