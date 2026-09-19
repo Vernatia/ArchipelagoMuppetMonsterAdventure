@@ -9,6 +9,66 @@ if TYPE_CHECKING:
 from .constants import game_name
 
 
+class MMAMorphState:
+    def __init__(self) -> None:
+        self.glide = False
+        self.climb = False
+        self.push = False
+        self.swim = False
+        self.smash = False
+
+    def get_bytes(self) -> bytes:
+        packed_data = (self.glide << 0) | (self.climb << 1) | (self.push << 2) | (self.swim << 3) | (self.smash << 4)
+        return packed_data.to_bytes(2, "little")
+
+
+class MMALevelState:
+    # TODO: provide level memory location definitions
+    def __init__(self) -> None:
+        self.unlocked = False
+        # TODO: figure out individual energy and token pickup triggers
+        self.energy: int = 0
+        self.tokens: int = 0
+
+
+class MMAAmuletState:
+    # TODO: maybe provide item identifier list
+    def __init__(self, offset: int) -> None:
+        self.flags = [False, False, False, False]
+        self.offset = offset
+
+    def get_changes(self, data: int) -> list[int]:
+        new_flags = self.get_amulet_flags(data)
+        changes: list[int] = []
+        for i in range(4):
+            if new_flags[i] and new_flags[i] != self.flags[i]:
+                changes.append(i)
+                self.flags[i] = True
+        return changes
+
+    def get_amulet_flags(self, data: int) -> list[bool]:
+        # Note: amulets may not necessarily be placed in this order in the level.
+        return [
+            ((data >> self.offset) & 1) == 1,
+            ((data >> self.offset + 1) & 1) == 1,
+            ((data >> self.offset + 2) & 1) == 1,
+            ((data >> self.offset + 3) & 1) == 1,
+        ]
+
+
+class MMAGameState:
+    def __init__(self) -> None:
+        self.morphs = MMAMorphState()
+        self.levels: dict[str, MMALevelState] = {}
+        self.amulets: dict[str, MMAAmuletState] = {
+            "noseferatu": MMAAmuletState(16),
+            "werebear": MMAAmuletState(20),
+            "ker_monster": MMAAmuletState(8),
+            "muck_monster": MMAAmuletState(12),
+            "ghoul_friend": MMAAmuletState(0),
+        }
+
+
 class MMAClient(BizHawkClient):
     game = game_name
     system = "PSX"
@@ -33,8 +93,10 @@ class MMAClient(BizHawkClient):
         ctx.items_handling = self.items_handling
         ctx.want_slot_data = True
         ctx.watcher_timeout = 0.125
-        self.loading_bios_msg = False
-        self.last_pickups: list[bytes] = [bytes(0)]
+
+        # State init
+        self.last_amulets_flags: list[bytes] = [bytes(0)]
+        self.game_state = MMAGameState()
 
         return True
 
@@ -42,25 +104,18 @@ class MMAClient(BizHawkClient):
         from CommonClient import logger
 
         # TODO: PAL differences?
-        # Logging changes to amulet pickups
-        pickups_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
+        amulets_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
 
-        if self.last_pickups != pickups_flag:
-            self.last_pickups = pickups_flag
-            logger.info(f"Pickup flags is: {int(pickups_flag[0].hex(), base=16):024b}")
-            logger.info(f"{self.extract_amulet_flags(int(pickups_flag[0].hex(), base=16))}")
+        if self.last_amulets_flags != amulets_flag:
+            self.last_amulets_flags = amulets_flag
+            flags_int = int(amulets_flag[0].hex(), base=16)
+            # Extract amulet pickup changes
+            for name, state in self.game_state.amulets.items():
+                changes = state.get_changes(flags_int)
+                # TODO: emit location collection
+                if len(changes) > 0:
+                    logger.info(f"Amulet - '{name}' changes - {changes}")
 
-        # TODO: PAL differences?
-        # Always have all powers
-        await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, (255).to_bytes(2, "little"), "MainRAM")])
-
+        # Write powers
+        await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])
         return
-
-    def extract_amulet_flags(self, data: int) -> dict[str, bool]:
-        result: dict[str, bool] = {}
-        # climb, glide, push, swim, smash (last nibble is unused (?))
-        result["Werebear amulet: First"] = ((data >> 20) & 1) == 1
-        result["Werebear amulet: Second"] = ((data >> 23) & 1) == 1
-        result["Werebear amulet: Third"] = ((data >> 22) & 1) == 1
-        result["Werebear amulet: Fourth"] = ((data >> 21) & 1) == 1
-        return result
