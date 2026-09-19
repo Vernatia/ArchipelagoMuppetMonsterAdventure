@@ -66,16 +66,16 @@ class MMALevelState:
         coins = int.from_bytes(data[2:4], byteorder="little")
         energy = int.from_bytes(data[4:6], byteorder="little")
 
-        changes: bool = False
+        has_change: bool = False
         if len(bonus_changes) > 0 or tokens > self.tokens or coins > self.coins or energy > self.energy:
-            changes = True
+            has_change = True
 
         # Sometimes fields like these are flipped up and down for effect.
         # Don't know if these specifically are, but better safe than sorry.
         self.tokens = max(tokens, self.tokens)
         self.coins = max(coins, self.coins)
         self.energy = max(energy, self.energy)
-        return changes
+        return has_change
 
     def print(self) -> str:
         return f"Tokens: {self.tokens}, Energy: {self.energy}, Bonus: {self.bonus.flags}"
@@ -95,11 +95,11 @@ class MMAGameState:
         self.morphs: MMAMorphState = MMAMorphState()
         self.levels: dict[str, MMALevelState] = {"CASTLE1": MMALevelState(0x0CCB86)}
         self.amulets: dict[str, MMAAmuletState] = {
-            "noseferatu": MMAAmuletState(16),
-            "werebear": MMAAmuletState(20),
+            "noseferatu": MMAAmuletState(0),
+            "werebear": MMAAmuletState(4),
             "ker_monster": MMAAmuletState(8),
             "muck_monster": MMAAmuletState(12),
-            "ghoul_friend": MMAAmuletState(0),
+            "ghoul_friend": MMAAmuletState(16),
         }
 
 
@@ -147,7 +147,7 @@ class MMAClient(BizHawkClient):
         amulets_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
         if amulets_flag != self.last_amulets_flags:
             self.last_amulets_flags = amulets_flag
-            flags_int = amulets_flag[0][0]
+            flags_int = int.from_bytes(amulets_flag[0], byteorder="little")
             # Extract amulet pickup changes
             for name, state in self.game_state.amulets.items():
                 changes = state.process_changes(flags_int)
