@@ -93,7 +93,11 @@ class MMAAmuletState:
 class MMAGameState:
     def __init__(self) -> None:
         self.morphs: MMAMorphState = MMAMorphState()
-        self.levels: dict[str, MMALevelState] = {"CASTLE1": MMALevelState(0x0CCB86)}
+        self.levels: dict[str, MMALevelState] = {
+            "CASTLE1": MMALevelState(0x0CCB86),  # Peacock Purgatory
+            "CASTLE2": MMALevelState(0x0CCBEE),  # Hallways of Doom
+            "CASTLE3": MMALevelState(0x0CCC56),  # Poker Faces
+        }
         self.amulets: dict[str, MMAAmuletState] = {
             "noseferatu": MMAAmuletState(0),
             "werebear": MMAAmuletState(4),
