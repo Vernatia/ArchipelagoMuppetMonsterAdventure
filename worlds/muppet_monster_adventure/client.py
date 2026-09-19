@@ -9,13 +9,35 @@ if TYPE_CHECKING:
 from .constants import game_name
 
 
+class MMAFlagField:
+    def __init__(self, size: int, offset: int) -> None:
+        self.size: int = size
+        self.offset: int = offset
+        self.flags: list[bool] = [False] * size
+
+    def split_flags(self, data: int) -> list[bool]:
+        new_flags: list[bool] = [False] * self.size
+        for i in range(self.size):
+            new_flags[i] = ((data >> self.offset + i) & 1) == 1
+        return new_flags
+
+    def process_changes(self, data: int) -> list[int]:
+        new_flags = self.split_flags(data)
+        changes: list[int] = []
+        for i in range(self.size):
+            if new_flags[i] and new_flags[i] != self.flags[i]:
+                changes.append(i)
+                self.flags[i] = True
+        return changes
+
+
 class MMAMorphState:
     def __init__(self) -> None:
-        self.glide = False
-        self.climb = False
-        self.push = False
-        self.swim = False
-        self.smash = False
+        self.glide: bool = False
+        self.climb: bool = False
+        self.push: bool = False
+        self.swim: bool = False
+        self.smash: bool = False
 
     def get_bytes(self) -> bytes:
         packed_data = (self.glide << 0) | (self.climb << 1) | (self.push << 2) | (self.swim << 3) | (self.smash << 4)
@@ -23,43 +45,55 @@ class MMAMorphState:
 
 
 class MMALevelState:
-    # TODO: provide level memory location definitions
-    def __init__(self) -> None:
-        self.unlocked = False
-        # TODO: figure out individual energy and token pickup triggers
-        self.energy: int = 0
+    def __init__(
+        self,
+        address: int,
+    ) -> None:
+        self.address: int = address
+        self.unlocked: bool = False
+        self.bonus: MMAFlagField = MMAFlagField(size=5, offset=0)
+        self.coins: int = 0
         self.tokens: int = 0
+        self.energy: int = 0
+
+    # TODO: what return?
+    async def process_changes(self, ctx: "BizHawkClientContext") -> bool:
+        # TODO: technically we could do visit-sanity if we wanted, since the game tracks it.
+        # Would need to adjust all of this though, since it's 2 bytes prior to the Bonus.
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.address, 6, "MainRAM")]))[0]
+        bonus_changes = self.bonus.process_changes(data[0])
+        tokens = data[1]
+        coins = int.from_bytes(data[2:4], byteorder="little")
+        energy = int.from_bytes(data[4:6], byteorder="little")
+
+        changes: bool = False
+        if len(bonus_changes) > 0 or tokens > self.tokens or coins > self.coins or energy > self.energy:
+            changes = True
+
+        # Sometimes fields like these are flipped up and down for effect.
+        # Don't know if these specifically are, but better safe than sorry.
+        self.tokens = max(tokens, self.tokens)
+        self.coins = max(coins, self.coins)
+        self.energy = max(energy, self.energy)
+        return changes
+
+    def print(self) -> str:
+        return f"Tokens: {self.tokens}, Energy: {self.energy}, Bonus: {self.bonus.flags}"
 
 
 class MMAAmuletState:
     # TODO: maybe provide item identifier list
     def __init__(self, offset: int) -> None:
-        self.flags = [False, False, False, False]
-        self.offset = offset
+        self.flags: MMAFlagField = MMAFlagField(4, offset)
 
     def process_changes(self, data: int) -> list[int]:
-        new_flags = self.get_amulet_flags(data)
-        changes: list[int] = []
-        for i in range(4):
-            if new_flags[i] and new_flags[i] != self.flags[i]:
-                changes.append(i)
-                self.flags[i] = True
-        return changes
-
-    def get_amulet_flags(self, data: int) -> list[bool]:
-        # Note: amulets may not necessarily be placed in this order in the level.
-        return [
-            ((data >> self.offset) & 1) == 1,
-            ((data >> self.offset + 1) & 1) == 1,
-            ((data >> self.offset + 2) & 1) == 1,
-            ((data >> self.offset + 3) & 1) == 1,
-        ]
+        return self.flags.process_changes(data)
 
 
 class MMAGameState:
     def __init__(self) -> None:
-        self.morphs = MMAMorphState()
-        self.levels: dict[str, MMALevelState] = {}
+        self.morphs: MMAMorphState = MMAMorphState()
+        self.levels: dict[str, MMALevelState] = {"CASTLE1": MMALevelState(0x0CCB86)}
         self.amulets: dict[str, MMAAmuletState] = {
             "noseferatu": MMAAmuletState(16),
             "werebear": MMAAmuletState(20),
@@ -96,29 +130,35 @@ class MMAClient(BizHawkClient):
 
         # State init
         self.last_amulets_flags: list[bytes] = [bytes(0)]
-        self.level_name: str = ""
-        self.game_state = MMAGameState()
+        self.active_level_name: str = ""
+        self.game_state: MMAGameState = MMAGameState()
 
         return True
 
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
 
+        # TODO: first run should validate current state
+
         if await self.update_level_name(ctx):
-            logger.info(f"Level changed to '{self.level_name}'")
+            logger.info(f"Level changed to '{self.active_level_name}'")
 
         # TODO: PAL differences?
         amulets_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
-
         if amulets_flag != self.last_amulets_flags:
             self.last_amulets_flags = amulets_flag
-            flags_int = int(amulets_flag[0].hex(), base=16)
+            flags_int = amulets_flag[0][0]
             # Extract amulet pickup changes
             for name, state in self.game_state.amulets.items():
                 changes = state.process_changes(flags_int)
                 # TODO: emit location collection
                 if len(changes) > 0:
                     logger.info(f"Amulet - '{name}' changes - {changes}")
+
+        if (level := self.game_state.levels.get(self.active_level_name)) is not None:
+            if await level.process_changes(ctx):
+                logger.info(f"Level data updated - {level.print()}")
+            pass
 
         # Write powers
         await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])
@@ -134,7 +174,7 @@ class MMAClient(BizHawkClient):
                 break
             level_str += chr(b)
 
-        if level_str != self.level_name:
-            self.level_name = level_str
+        if level_str != self.active_level_name:
+            self.active_level_name = level_str
             return True
         return False
