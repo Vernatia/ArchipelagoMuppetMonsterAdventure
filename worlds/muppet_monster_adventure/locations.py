@@ -33,7 +33,7 @@ class MMARegion:
     def __init__(
         self, name: LevelName, identifier: str, state_address: int | None, locations: list[MMALocationData]
     ) -> None:
-        self.name: LevelName = name
+        self.name: str = name.value
         self.identifier: str = identifier
         self.state_address: int | None = state_address
         self.locations: list[MMALocationData] = locations
