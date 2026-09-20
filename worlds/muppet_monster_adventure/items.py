@@ -4,7 +4,7 @@ from typing import ClassVar, final
 
 from BaseClasses import ItemClassification
 
-from .shared import AbilityFlag, base_id
+from .shared import AbilityFlag, LevelName, base_id
 
 
 class MMAItemData(ABC):
@@ -44,14 +44,15 @@ all_items_table: Sequence[MMAItemData] = [
     # MMAItemData("Power Glove", IC.progression),
     # MMAItemData("Spin", IC.progression),
     # Levels
-    MMALevelItemData("Peacock Purgatory", ItemClassification.progression),
-    MMALevelItemData("Hallways of Doom", ItemClassification.progression),
-    MMALevelItemData("Poker Faces", ItemClassification.progression),
-    MMALevelItemData("Noseferatu", ItemClassification.progression),
+    MMALevelItemData(LevelName.PEACOCK_PURGATORY, ItemClassification.progression),
+    MMALevelItemData(LevelName.HALLWAYS_OF_DOOM, ItemClassification.progression),
+    MMALevelItemData(LevelName.POKER_FACES, ItemClassification.progression),
+    MMALevelItemData(LevelName.NOSEFERATU, ItemClassification.progression),
 ]
 
 item_name_to_id: dict[str, int] = {}
 item_id_to_item: dict[int, MMAItemData] = {}
+ability_to_item: dict[AbilityFlag, MMAItemData] = {}
 __level_index = 0
 for idx, item in enumerate(all_items_table):
     item_name_to_id.update({item.name: base_id + idx})
@@ -59,6 +60,8 @@ for idx, item in enumerate(all_items_table):
     if type(item) is MMALevelItemData:
         item.index = __level_index
         __level_index += 1
+    elif type(item) is MMAAbilityItemData:
+        ability_to_item.update({item.ability_type: item})
 
 item_name_groups: dict[str, set[str]] = {}
 for item in all_items_table:

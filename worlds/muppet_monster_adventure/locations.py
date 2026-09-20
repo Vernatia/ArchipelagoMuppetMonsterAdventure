@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import final
 
-from .shared import AbilityFlag, base_id
+from .shared import AbilityFlag, LevelName, base_id
 
 
 class LocationType(Enum):
@@ -33,8 +33,10 @@ class MMALocationData:
 
 @final
 class MMARegion:
-    def __init__(self, name: str, identifier: str, state_address: int | None, locations: list[MMALocationData]) -> None:
-        self.name: str = name
+    def __init__(
+        self, name: LevelName, identifier: str, state_address: int | None, locations: list[MMALocationData]
+    ) -> None:
+        self.name: LevelName = name
         self.identifier: str = identifier
         self.state_address: int | None = state_address
         self.locations: list[MMALocationData] = locations
@@ -44,7 +46,7 @@ class MMARegion:
 # TODO: other regions
 all_locations_table: list[MMARegion] = [
     MMARegion(
-        "Peacock Purgatory",
+        LevelName.PEACOCK_PURGATORY,
         "CASTLE1",
         0x0CCB86,
         [
@@ -95,7 +97,7 @@ all_locations_table: list[MMARegion] = [
         ],
     ),
     MMARegion(
-        "Hallways of Doom",
+        LevelName.HALLWAYS_OF_DOOM,
         "CASTLE2",
         0x0CCBEE,
         [
@@ -128,7 +130,7 @@ all_locations_table: list[MMARegion] = [
         ],
     ),
     MMARegion(
-        "Poker Faces",
+        LevelName.POKER_FACES,
         "CASTLE3",
         0x0CCC56,
         [
@@ -164,7 +166,7 @@ all_locations_table: list[MMARegion] = [
             ),
         ],
     ),
-    MMARegion("Noseferatu", "CASTLEB", None, [MMALocationData("Boss defeated", LocationType.BOSS)]),
+    MMARegion(LevelName.NOSEFERATU, "CASTLEB", None, [MMALocationData("Boss defeated", LocationType.BOSS)]),
 ]
 
 # Maps region name to the region data definition

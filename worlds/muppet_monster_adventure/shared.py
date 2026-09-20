@@ -1,4 +1,4 @@
-from enum import Flag, auto
+from enum import Flag, StrEnum, auto
 
 base_id: int = 25_899_560
 game_name: str = "Muppet Monster Adventure"
@@ -13,3 +13,11 @@ class AbilityFlag(Flag):
     # TODO: implement these (if possible)
     GLOVE = auto()
     SPIN = auto()
+
+
+class LevelName(StrEnum):
+    HUB = "Hub"
+    PEACOCK_PURGATORY = "Peacock Purgatory"
+    HALLWAYS_OF_DOOM = "Hallways of Doom"
+    POKER_FACES = "Poker Faces"
+    NOSEFERATU = "Noseferatu"
