@@ -116,6 +116,7 @@ all_locations_table: list[MMARegion] = [
             MMALocationData("Bonus - S", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
         ],
     ),
+    MMARegion("Noseferatu", [MMALocationData("Boss defeated")]),
 ]
 
 
