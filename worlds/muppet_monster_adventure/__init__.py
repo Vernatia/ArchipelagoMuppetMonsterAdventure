@@ -2,9 +2,9 @@ from BaseClasses import Item, Location
 from worlds.AutoWorld import World
 
 from .client import *  # noqa: F403
-from .constants import game_name
 from .items import item_name_groups, item_name_to_id
 from .locations import location_name_groups, location_name_to_id
+from .shared import game_name
 
 
 class MMAItem(Item):

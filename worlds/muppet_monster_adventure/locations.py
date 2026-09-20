@@ -1,6 +1,7 @@
-from enum import Enum, Flag, auto
+from enum import Enum
+from typing import final
 
-from .constants import base_id
+from .shared import AbilityFlag, base_id
 
 
 class LocationType(Enum):
@@ -15,17 +16,7 @@ class LocationType(Enum):
     BOSS = "Boss Defeat"
 
 
-class AbilityFlag(Flag):
-    GLIDE = auto()
-    CLIMB = auto()
-    PUSH = auto()
-    SWIM = auto()
-    SMASH = auto()
-    # TODO: implement these (if possible)
-    GLOVE = auto()
-    SPIN = auto()
-
-
+@final
 class MMALocationData:
     ability_requirements: list[AbilityFlag] | None
 
@@ -37,9 +28,10 @@ class MMALocationData:
         # e.g. The location can be unlocked by either "climb and swim" OR "climb and glide".
         # This would be represented as: [AbilityFlag.CLIMB | AbilityFlag.SWIM, AbilityFlag.CLIMB | AbilityFlag.GLIDE]
         self.ability_requirements = ability_requirements
-        self.full_identifier = ""
+        self.full_identifier: str = ""
 
 
+@final
 class MMARegion:
     def __init__(self, name: str, identifier: str, state_address: int | None, locations: list[MMALocationData]) -> None:
         self.name: str = name
