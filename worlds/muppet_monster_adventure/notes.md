@@ -60,7 +60,7 @@ Ghoul-friend + Werebear + Noseferatu:
 - 5/5 tokens (+1)
 - BONUS (+U)
 
-These are actually possible to do without Noseferatu, but I'm going to consider it a trick, since it's clearly not intended.
+These are actually possible to do without Noseferatu, but I'm going to consider it a trick since it's clearly not intended.
 
 ## Poker Faces
 
