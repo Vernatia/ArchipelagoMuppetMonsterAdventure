@@ -25,8 +25,10 @@ class MMALocationData:
 
 
 class MMARegion:
-    def __init__(self, name: str, locations: list[MMALocationData]) -> None:
+    def __init__(self, name: str, identifier: str, state_address: int | None, locations: list[MMALocationData]) -> None:
         self.name: str = name
+        self.identifier: str = identifier
+        self.state_address: int | None = state_address
         self.locations: list[MMALocationData] = locations
         pass
 
@@ -35,6 +37,8 @@ class MMARegion:
 all_locations_table: list[MMARegion] = [
     MMARegion(
         "Peacock Purgatory",
+        "CASTLE1",
+        0x0CCB86,
         [
             # Amulets
             MMALocationData("Wocka Wocka Werebear Amulet - By tutorial flags"),
@@ -68,6 +72,8 @@ all_locations_table: list[MMARegion] = [
     ),
     MMARegion(
         "Hallways of Doom",
+        "CASTLE2",
+        0x0CCBEE,
         [
             # Amulets
             MMALocationData("Ghoul-friend Amulet - Behind spawn"),
@@ -93,6 +99,8 @@ all_locations_table: list[MMARegion] = [
     ),
     MMARegion(
         "Poker Faces",
+        "CASTLE3",
+        0x0CCC56,
         [
             # Amulets
             MMALocationData("Ker-monster Amulet - On lone pillar in lava"),
@@ -116,8 +124,10 @@ all_locations_table: list[MMARegion] = [
             MMALocationData("Bonus - S", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
         ],
     ),
-    MMARegion("Noseferatu", [MMALocationData("Boss defeated")]),
+    MMARegion("Noseferatu", "CASTLEB", None, [MMALocationData("Boss defeated")]),
 ]
+
+region_lookup: dict[str, MMARegion] = {x.name: x for x in all_locations_table}
 
 
 def location_name_to_id(base_id: int) -> dict[str, int]:

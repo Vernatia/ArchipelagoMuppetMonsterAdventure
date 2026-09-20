@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
+from worlds.muppet_monster_adventure.locations import region_lookup
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
@@ -93,11 +94,10 @@ class MMAGameState:
     def __init__(self) -> None:
         # TODO: level unlocking (starts at 0x0AA0C4)
         self.morphs: MMAMorphState = MMAMorphState()
-        self.levels: dict[str, MMALevelState] = {
-            "CASTLE1": MMALevelState(0x0CCB86),  # Peacock Purgatory
-            "CASTLE2": MMALevelState(0x0CCBEE),  # Hallways of Doom
-            "CASTLE3": MMALevelState(0x0CCC56),  # Poker Faces
+        self.level_states: dict[str, MMALevelState] = {
+            x.identifier: MMALevelState(x.state_address) for x in region_lookup.values() if x.state_address is not None
         }
+        self.level_unlocks: dict[str, bool] = {x.name: False for x in region_lookup.values()}
         self.amulets: dict[str, MMAAmuletState] = {
             "noseferatu": MMAAmuletState(0),
             "werebear": MMAAmuletState(4),
@@ -147,6 +147,10 @@ class MMAClient(BizHawkClient):
         if await self.update_level_name(ctx):
             logger.info(f"Level changed to '{self.active_level_name}'")
 
+        if self.active_level_name == "HUB":
+            write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks.values()]
+            await bizhawk.write(ctx.bizhawk_ctx, [(0x0AA0C4, write_list, "MainRAM"), (0x0E22F0, [5], "MainRAM")])
+
         # TODO: PAL differences?
         amulets_flag = await bizhawk.read(ctx.bizhawk_ctx, [(0x0CCB78, 3, "MainRAM")])
         if amulets_flag != self.last_amulets_flags:
@@ -159,7 +163,7 @@ class MMAClient(BizHawkClient):
                 if len(changes) > 0:
                     logger.info(f"Amulet - '{name}' changes - {changes}")
 
-        if (level := self.game_state.levels.get(self.active_level_name)) is not None:
+        if (level := self.game_state.level_states.get(self.active_level_name)) is not None:
             if await level.process_changes(ctx):
                 logger.info(f"Level data updated - {level.print()}")
             pass
