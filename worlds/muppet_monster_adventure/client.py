@@ -182,15 +182,17 @@ class MMAClient(BizHawkClient):
             # Not in-game
             return
 
-        if self.active_level_name == "HUB":
-            write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks]
-            await bizhawk.write(ctx.bizhawk_ctx, [(0x0AA0C4, write_list, "MainRAM"), (0x0E22F0, [5], "MainRAM")])
-
         await self.check_locations(ctx)
         await self.receive_items(ctx)
 
-        # Write powers
-        await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])
+        if self.active_level_name == "HUB":
+            # Write level unlocks, always have all regions unlocked
+            write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks]
+            await bizhawk.write(ctx.bizhawk_ctx, [(0x0AA0C4, write_list, "MainRAM"), (0x0E22F0, [5], "MainRAM")])
+        else:
+            # Write powers
+            await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])
+
         return
 
     async def update_level_name(self, ctx: "BizHawkClientContext") -> bool:
