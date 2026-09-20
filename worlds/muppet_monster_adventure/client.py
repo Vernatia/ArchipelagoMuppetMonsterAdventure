@@ -50,7 +50,6 @@ class MMALevelState:
         address: int,
     ) -> None:
         self.address: int = address
-        self.unlocked: bool = False
         self.bonus: MMAFlagField = MMAFlagField(size=5, offset=0)
         self.coins: int = 0
         self.tokens: int = 0
@@ -92,6 +91,7 @@ class MMAAmuletState:
 
 class MMAGameState:
     def __init__(self) -> None:
+        # TODO: level unlocking (starts at 0x0AA0C4)
         self.morphs: MMAMorphState = MMAMorphState()
         self.levels: dict[str, MMALevelState] = {
             "CASTLE1": MMALevelState(0x0CCB86),  # Peacock Purgatory
