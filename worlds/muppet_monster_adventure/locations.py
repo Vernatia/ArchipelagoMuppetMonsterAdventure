@@ -1,11 +1,25 @@
-from enum import Flag, auto
+from enum import Enum, Flag, auto
+
+from .constants import base_id
+
+
+class LocationType(Enum):
+    NOSEFERATU_AMULET = "Noseferatu Amulet"
+    WEREBEAR_AMULET = "Werebear Amulet"
+    KER_MONSTER_AMULET = "Ker-monster Amulet"
+    MUCK_MONSTER_AMULET = "Muck Monster Amulet"
+    GHOUL_FRIEND_AMULET = "Ghoul-friend Amulet"
+    ENERGY = "Evil Energy"
+    TOKEN = "Muppet Token"
+    BONUS = "Bonus Letter"
+    BOSS = "Boss Defeat"
 
 
 class AbilityFlag(Flag):
-    CLIMB = auto()
-    SWIM = auto()
     GLIDE = auto()
+    CLIMB = auto()
     PUSH = auto()
+    SWIM = auto()
     SMASH = auto()
     # TODO: implement these (if possible)
     GLOVE = auto()
@@ -15,13 +29,15 @@ class AbilityFlag(Flag):
 class MMALocationData:
     ability_requirements: list[AbilityFlag] | None
 
-    def __init__(self, name: str, ability_requirements: list[AbilityFlag] | None = None):
+    def __init__(self, name: str, type: LocationType, ability_requirements: list[AbilityFlag] | None = None):
         self.name: str = name
+        self.type: LocationType = type
         # Each flag lists the unique combination of abilities which unlocks this location.
         # Alternatives should be provided as a separate entry.
         # e.g. The location can be unlocked by either "climb and swim" OR "climb and glide".
         # This would be represented as: [AbilityFlag.CLIMB | AbilityFlag.SWIM, AbilityFlag.CLIMB | AbilityFlag.GLIDE]
         self.ability_requirements = ability_requirements
+        self.full_identifier = ""
 
 
 class MMARegion:
@@ -41,33 +57,49 @@ all_locations_table: list[MMARegion] = [
         0x0CCB86,
         [
             # Amulets
-            MMALocationData("Wocka Wocka Werebear Amulet - By tutorial flags"),
-            MMALocationData("Wocka Wocka Werebear Amulet - On stairs near gardener"),
-            MMALocationData("Wocka Wocka Werebear Amulet - On hill by lake"),
-            MMALocationData("Wocka Wocka Werebear Amulet - By climbable wall"),
-            MMALocationData("Muck Monster Amulet - By the lake"),
-            MMALocationData("Muck Monster Amulet - Up climbable wall by Werebear Amulet", [AbilityFlag.CLIMB]),
-            MMALocationData("Muck Monster Amulet - On path before climable wall"),
-            MMALocationData("Muck Monster Amulet - Up climable wall by Muck Monster Amulet", [AbilityFlag.CLIMB]),
-            MMALocationData("Noseferatu Amulet - Bottom of the lake", [AbilityFlag.SWIM]),
-            MMALocationData("Noseferatu Amulet - By sundial"),
-            MMALocationData("Noseferatu Amulet - Up super-jump platform"),
-            MMALocationData("Noseferatu Amulet - Up stairs after triggering switch", [AbilityFlag.GLOVE]),
+            MMALocationData("Wocka Wocka Werebear Amulet - By tutorial flags", LocationType.WEREBEAR_AMULET),
+            MMALocationData("Wocka Wocka Werebear Amulet - On stairs near gardener", LocationType.WEREBEAR_AMULET),
+            MMALocationData("Wocka Wocka Werebear Amulet - On hill by lake", LocationType.WEREBEAR_AMULET),
+            MMALocationData("Wocka Wocka Werebear Amulet - By climbable wall", LocationType.WEREBEAR_AMULET),
+            MMALocationData("Muck Monster Amulet - By the lake", LocationType.MUCK_MONSTER_AMULET),
+            MMALocationData(
+                "Muck Monster Amulet - Up climbable wall by Werebear Amulet",
+                LocationType.MUCK_MONSTER_AMULET,
+                [AbilityFlag.CLIMB],
+            ),
+            MMALocationData("Muck Monster Amulet - On path before climable wall", LocationType.MUCK_MONSTER_AMULET),
+            MMALocationData(
+                "Muck Monster Amulet - Up climable wall by Muck Monster Amulet",
+                LocationType.MUCK_MONSTER_AMULET,
+                [AbilityFlag.CLIMB],
+            ),
+            MMALocationData(
+                "Noseferatu Amulet - Bottom of the lake", LocationType.NOSEFERATU_AMULET, [AbilityFlag.SWIM]
+            ),
+            MMALocationData("Noseferatu Amulet - By sundial", LocationType.NOSEFERATU_AMULET),
+            MMALocationData("Noseferatu Amulet - Up super-jump platform", LocationType.NOSEFERATU_AMULET),
+            MMALocationData(
+                "Noseferatu Amulet - Up stairs after triggering switch",
+                LocationType.NOSEFERATU_AMULET,
+                [AbilityFlag.GLOVE],
+            ),
             # Energy
-            MMALocationData("Evil Energy - 50%"),
-            MMALocationData("Evil Energy - 100%", [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM]),
+            MMALocationData("Evil Energy - 50%", LocationType.ENERGY),
+            MMALocationData(
+                "Evil Energy - 100%", LocationType.ENERGY, [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM]
+            ),
             # Tokens
-            MMALocationData("1st Muppet Token"),
-            MMALocationData("2nd Muppet Token"),
-            MMALocationData("3rd Muppet Token"),
-            MMALocationData("4th Muppet Token"),
-            MMALocationData("5th Muppet Token", [AbilityFlag.CLIMB]),
+            MMALocationData("1st Muppet Token", LocationType.TOKEN),
+            MMALocationData("2nd Muppet Token", LocationType.TOKEN),
+            MMALocationData("3rd Muppet Token", LocationType.TOKEN),
+            MMALocationData("4th Muppet Token", LocationType.TOKEN),
+            MMALocationData("5th Muppet Token", LocationType.TOKEN, [AbilityFlag.CLIMB]),
             # Bonus
-            MMALocationData("Bonus - B"),
-            MMALocationData("Bonus - O"),
-            MMALocationData("Bonus - N"),
-            MMALocationData("Bonus - U"),
-            MMALocationData("Bonus - S"),
+            MMALocationData("Bonus - B", LocationType.BONUS),
+            MMALocationData("Bonus - O", LocationType.BONUS),
+            MMALocationData("Bonus - N", LocationType.BONUS),
+            MMALocationData("Bonus - U", LocationType.BONUS),
+            MMALocationData("Bonus - S", LocationType.BONUS),
         ],
     ),
     MMARegion(
@@ -76,25 +108,31 @@ all_locations_table: list[MMARegion] = [
         0x0CCBEE,
         [
             # Amulets
-            MMALocationData("Ghoul-friend Amulet - Behind spawn"),
-            MMALocationData("Ghoul-friend Amulet - On left staircase"),
-            MMALocationData("Ghoul-friend Amulet - Top of left staircase"),
-            MMALocationData("Ghoul-friend Amulet - Top of right staircase"),
+            MMALocationData("Ghoul-friend Amulet - Behind spawn", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ghoul-friend Amulet - On left staircase", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ghoul-friend Amulet - Top of left staircase", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ghoul-friend Amulet - Top of right staircase", LocationType.GHOUL_FRIEND_AMULET),
             # Energy
-            MMALocationData("Evil Energy - 50%", [AbilityFlag.SMASH]),
-            MMALocationData("Evil Energy - 100%", [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]),
+            MMALocationData("Evil Energy - 50%", LocationType.ENERGY, [AbilityFlag.SMASH]),
+            MMALocationData(
+                "Evil Energy - 100%", LocationType.ENERGY, [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]
+            ),
             # Tokens
-            MMALocationData("1st Muppet Token", [AbilityFlag.SMASH]),
-            MMALocationData("2nd Muppet Token", [AbilityFlag.SMASH]),
-            MMALocationData("3rd Muppet Token", [AbilityFlag.SMASH]),
-            MMALocationData("4th Muppet Token", [AbilityFlag.SMASH | AbilityFlag.CLIMB]),
-            MMALocationData("5th Muppet Token", [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]),
+            MMALocationData("1st Muppet Token", LocationType.TOKEN, [AbilityFlag.SMASH]),
+            MMALocationData("2nd Muppet Token", LocationType.TOKEN, [AbilityFlag.SMASH]),
+            MMALocationData("3rd Muppet Token", LocationType.TOKEN, [AbilityFlag.SMASH]),
+            MMALocationData("4th Muppet Token", LocationType.TOKEN, [AbilityFlag.SMASH | AbilityFlag.CLIMB]),
+            MMALocationData(
+                "5th Muppet Token", LocationType.TOKEN, [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]
+            ),
             # Bonus
-            MMALocationData("Bonus - B", [AbilityFlag.SMASH]),
-            MMALocationData("Bonus - O", [AbilityFlag.SMASH | AbilityFlag.CLIMB]),
-            MMALocationData("Bonus - N", [AbilityFlag.SMASH]),
-            MMALocationData("Bonus - U", [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]),
-            MMALocationData("Bonus - S", [AbilityFlag.SMASH]),
+            MMALocationData("Bonus - B", LocationType.BONUS, [AbilityFlag.SMASH]),
+            MMALocationData("Bonus - O", LocationType.BONUS, [AbilityFlag.SMASH | AbilityFlag.CLIMB]),
+            MMALocationData("Bonus - N", LocationType.BONUS, [AbilityFlag.SMASH]),
+            MMALocationData(
+                "Bonus - U", LocationType.BONUS, [AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE]
+            ),
+            MMALocationData("Bonus - S", LocationType.BONUS, [AbilityFlag.SMASH]),
         ],
     ),
     MMARegion(
@@ -103,46 +141,59 @@ all_locations_table: list[MMARegion] = [
         0x0CCC56,
         [
             # Amulets
-            MMALocationData("Ker-monster Amulet - On lone pillar in lava"),
-            MMALocationData("Ker-monster Amulet - By search light towers"),
-            MMALocationData("Ker-monster Amulet - On trio of pillars in lava"),
-            MMALocationData("Ker-monster Amulet - By pushable block"),
+            MMALocationData("Ker-monster Amulet - On lone pillar in lava", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ker-monster Amulet - By search light towers", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ker-monster Amulet - On trio of pillars in lava", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ker-monster Amulet - By pushable block", LocationType.GHOUL_FRIEND_AMULET),
             # Energy
-            MMALocationData("Evil Energy - 50%", [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
-            MMALocationData("Evil Energy - 100%", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
+            MMALocationData("Evil Energy - 50%", LocationType.ENERGY, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
+            MMALocationData(
+                "Evil Energy - 100%", LocationType.ENERGY, [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]
+            ),
             # Tokens
-            MMALocationData("1st Muppet Token", [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
-            MMALocationData("2nd Muppet Token", [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
-            MMALocationData("3rd Muppet Token", [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
-            MMALocationData("4th Muppet Token", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
-            MMALocationData("5th Muppet Token", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
+            MMALocationData("1st Muppet Token", LocationType.TOKEN, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
+            MMALocationData("2nd Muppet Token", LocationType.TOKEN, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
+            MMALocationData("3rd Muppet Token", LocationType.TOKEN, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
+            MMALocationData(
+                "4th Muppet Token", LocationType.TOKEN, [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]
+            ),
+            MMALocationData(
+                "5th Muppet Token", LocationType.TOKEN, [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]
+            ),
             # Bonus
-            MMALocationData("Bonus - B"),
-            MMALocationData("Bonus - O"),
-            MMALocationData("Bonus - N", [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
-            MMALocationData("Bonus - U", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
-            MMALocationData("Bonus - S", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
+            MMALocationData("Bonus - B", LocationType.BONUS),
+            MMALocationData("Bonus - O", LocationType.BONUS),
+            MMALocationData("Bonus - N", LocationType.BONUS, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
+            MMALocationData(
+                "Bonus - U", LocationType.BONUS, [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]
+            ),
+            MMALocationData(
+                "Bonus - S", LocationType.BONUS, [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.CLIMB]
+            ),
         ],
     ),
-    MMARegion("Noseferatu", "CASTLEB", None, [MMALocationData("Boss defeated")]),
+    MMARegion("Noseferatu", "CASTLEB", None, [MMALocationData("Boss defeated", LocationType.BOSS)]),
 ]
 
-region_lookup: dict[str, MMARegion] = {x.name: x for x in all_locations_table}
+# Maps region name to the region data definition
+region_lookup: dict[str, MMARegion] = {region.name: region for region in all_locations_table}
 
+# Lists all locations, by type
+location_type_lookup: dict[LocationType, list[MMALocationData]] = {}
+for region in all_locations_table:
+    for loc in region.locations:
+        location_type_lookup.update({loc.type: location_type_lookup[loc.type] + [loc]})
 
-def location_name_to_id(base_id: int) -> dict[str, int]:
-    """Converts all locations from their `[Region: [Name: Data]]` format into `[Name: ID]`,
-    where `ID` is a deterministic value greater than `base_id`."""
-    result: dict[str, int] = {}
-    for group_idx, region_data in enumerate(all_locations_table):
-        for item_idx, location in enumerate(region_data.locations):
-            result.update({f"{region_data.name} - {location.name}": base_id + group_idx + item_idx})
-    return result
+# Maps locations to their AP identifier
+location_name_to_id: dict[str, int] = {}
+__running_idx = 0
+for region_data in all_locations_table:
+    for location in region_data.locations:
+        location.full_identifier = f"{region_data.name} - {location.name}"
+        location_name_to_id.update({location.full_identifier: base_id + __running_idx})
+        __running_idx += 1
 
-
-def location_name_groups() -> dict[str, set[str]]:
-    """Converts all locations from their `[Region: [Name: Data]]` format into `[Region: [Name]]`."""
-    result: dict[str, set[str]] = {}
-    for region_data in all_locations_table:
-        result[region_data.name] = {x.name for x in region_data.locations}
-    return result
+# Groups locations by region
+location_name_groups: dict[str, set[str]] = {}
+for region_data in all_locations_table:
+    location_name_groups[region_data.name] = {x.name for x in region_data.locations}

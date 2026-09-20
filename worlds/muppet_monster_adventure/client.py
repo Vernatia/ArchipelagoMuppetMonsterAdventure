@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING
 
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
-from worlds.muppet_monster_adventure.locations import region_lookup
+
+from .locations import LocationType, location_name_to_id, location_type_lookup, region_lookup
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
@@ -98,12 +99,12 @@ class MMAGameState:
             x.identifier: MMALevelState(x.state_address) for x in region_lookup.values() if x.state_address is not None
         }
         self.level_unlocks: dict[str, bool] = {x.name: False for x in region_lookup.values()}
-        self.amulets: dict[str, MMAAmuletState] = {
-            "noseferatu": MMAAmuletState(0),
-            "werebear": MMAAmuletState(4),
-            "ker_monster": MMAAmuletState(8),
-            "muck_monster": MMAAmuletState(12),
-            "ghoul_friend": MMAAmuletState(16),
+        self.amulets: dict[LocationType, MMAAmuletState] = {
+            LocationType.NOSEFERATU_AMULET: MMAAmuletState(0),
+            LocationType.WEREBEAR_AMULET: MMAAmuletState(4),
+            LocationType.KER_MONSTER_AMULET: MMAAmuletState(8),
+            LocationType.MUCK_MONSTER_AMULET: MMAAmuletState(12),
+            LocationType.GHOUL_FRIEND_AMULET: MMAAmuletState(16),
         }
 
 
@@ -139,13 +140,39 @@ class MMAClient(BizHawkClient):
 
         return True
 
+    def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict[object, object]) -> None:
+        super().on_package(ctx, cmd, args)
+
+        match cmd:
+            case "Connected":
+                # TODO: Read relevant slot data
+                pass
+            # TODO: race countdown
+        pass
+
+    async def set_auth(self, ctx: "BizHawkClientContext") -> None:
+        await ctx.get_username()
+
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
+
+        # TODO: uncomment once dev testing done
+        # if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None or ctx.auth is None:
+        #     return
 
         # TODO: first run should validate current state
 
         if await self.update_level_name(ctx):
             logger.info(f"Level changed to '{self.active_level_name}'")
+
+        if (
+            self.active_level_name == ""
+            or self.active_level_name == "FRONT1"
+            or self.active_level_name == "GLOBAL"
+            or self.active_level_name.startswith("DEMO")
+        ):
+            # Not in-game
+            return
 
         if self.active_level_name == "HUB":
             write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks.values()]
@@ -156,17 +183,29 @@ class MMAClient(BizHawkClient):
         if amulets_flag != self.last_amulets_flags:
             self.last_amulets_flags = amulets_flag
             flags_int = int.from_bytes(amulets_flag[0], byteorder="little")
+
             # Extract amulet pickup changes
-            for name, state in self.game_state.amulets.items():
+            amulet_location_changes: list[int] = []
+            for amulet_type, state in self.game_state.amulets.items():
                 changes = state.process_changes(flags_int)
                 # TODO: emit location collection
                 if len(changes) > 0:
-                    logger.info(f"Amulet - '{name}' changes - {changes}")
+                    logger.info(f"'{amulet_type}' changes - {changes}")
+                    for item in changes:
+                        location = location_type_lookup[amulet_type][item]
+                        ap_id = location_name_to_id[location.full_identifier]
+                        amulet_location_changes.append(ap_id)
+
+            if len(amulet_location_changes) > 0:
+                # TODO: do we want to do anything with this information?
+                _ = await ctx.check_locations(amulet_location_changes)
 
         if (level := self.game_state.level_states.get(self.active_level_name)) is not None:
             if await level.process_changes(ctx):
                 logger.info(f"Level data updated - {level.print()}")
             pass
+
+        # TODO: boss defeated check. Will need to validate the number change once
 
         # Write powers
         await bizhawk.write(ctx.bizhawk_ctx, [(0x0B76F8, self.game_state.morphs.get_bytes(), "MainRAM")])

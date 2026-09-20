@@ -2,46 +2,47 @@ from typing import NamedTuple
 
 from BaseClasses import ItemClassification as IC
 
-
-class MMAItemData(NamedTuple):
-    classification: IC
+from .constants import base_id
 
 
-abilities_table: dict[str, MMAItemData] = {
-    "Climbing": MMAItemData(IC.progression),
-    "Swimming": MMAItemData(IC.progression),
-    "Gliding": MMAItemData(IC.progression),
-    "Block Pushing": MMAItemData(IC.progression),
-    "Smashing": MMAItemData(IC.progression),
+class MMAItemData:
+    def __init__(self, name: str, classification: IC) -> None:
+        self.name: str = name
+        self.classification: IC = classification
+        pass
+
+
+abilities_table: list[MMAItemData] = [
+    MMAItemData("Climbing", IC.progression),
+    MMAItemData("Swimming", IC.progression),
+    MMAItemData("Gliding", IC.progression),
+    MMAItemData("Block Pushing", IC.progression),
+    MMAItemData("Smashing", IC.progression),
     # TODO: figure out how to lock these (if possible)
-    # "Power Glove": MMAItemData(IC.progression),
-    # "Spin": MMAItemData(IC.progression),
-}
+    # MMAItemData("Power Glove", IC.progression),
+    # MMAItemData("Spin", IC.progression),
+]
 
-levels_table: dict[str, MMAItemData] = {
-    "Peacock Purgatory": MMAItemData(IC.progression),
+levels_table: list[MMAItemData] = [
+    MMAItemData("Peacock Purgatory", IC.progression),
+    MMAItemData("Hallways of Doom", IC.progression),
+    MMAItemData("Poker Faces", IC.progression),
+    MMAItemData("Noseferatu", IC.progression),
     # TODO: other levels
-}
+]
 
-all_items_table: dict[str, dict[str, MMAItemData]] = {
+all_items_table: dict[str, list[MMAItemData]] = {
     "Abilities": abilities_table,
     "Levels": levels_table,
 }
 
+item_name_to_id: dict[str, int] = {}
+__running_idx = 0
+for group_items in all_items_table.values():
+    for item in group_items:
+        item_name_to_id.update({item.name: base_id + __running_idx})
+        __running_idx += 1
 
-def item_name_to_id(base_id: int) -> dict[str, int]:
-    """Converts all items from their `[Type: [Name: Data]]` format into `[Name: ID]`,
-    where `ID` is a deterministic value greater than `base_id`."""
-    map: dict[str, int] = {}
-    for group_idx, group_items in enumerate(all_items_table.values()):
-        for item_idx, item_name in enumerate(group_items):
-            map.update({item_name: base_id + group_idx + item_idx})
-    return map
-
-
-def item_name_groups() -> dict[str, set[str]]:
-    """Converts all items from their `[Type: [Name: Data]]` format into `[Type: [Name]]`."""
-    result: dict[str, set[str]] = {}
-    for group_name, group_items in all_items_table.items():
-        result[group_name] = set(group_items.keys())
-    return result
+item_name_groups: dict[str, set[str]] = {}
+for group_name, group_items in all_items_table.items():
+    item_name_groups[group_name] = {item.name for item in group_items}
