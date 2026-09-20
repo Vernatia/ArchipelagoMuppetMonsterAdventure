@@ -65,4 +65,4 @@ for idx, item in enumerate(all_items_table):
 
 item_name_groups: dict[str, set[str]] = {}
 for item in all_items_table:
-    item_name_groups.update({item.group: item_name_groups[item.group] | {item.name}})
+    item_name_groups.update({item.group: (item_name_groups.get(item.group) or set()) | {item.name}})

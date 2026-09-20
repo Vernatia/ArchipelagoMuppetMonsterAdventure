@@ -1,4 +1,4 @@
-from typing import final, override
+from typing import TYPE_CHECKING
 
 from BaseClasses import Item, Location, MultiWorld, Region
 from rule_builder import rules
@@ -10,17 +10,14 @@ from .locations import all_locations_table, location_name_groups, location_name_
 from .shared import LevelName, base_id, game_name
 
 
-@final
 class MMAItem(Item):
     game: str = game_name
 
 
-@final
 class MMALocation(Location):
     game: str = game_name
 
 
-@final
 class MuppetMonsterAdventureWorld(World):
     game = game_name
 
@@ -31,19 +28,27 @@ class MuppetMonsterAdventureWorld(World):
     location_name_to_id = location_name_to_id
     location_name_groups = location_name_groups
 
+    origin_region_name = LevelName.HUB
+
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
 
-    @override
     def create_regions(self) -> None:
         super().create_regions()
-        self.multiworld.regions.append(Region(LevelName.HUB, self.player, self.multiworld))
-        self.multiworld.regions.extend(
-            [Region(region.name, self.player, self.multiworld) for region in all_locations_table]
-        )
+        hub_region = Region(LevelName.HUB, self.player, self.multiworld)
+        self.multiworld.regions.append(hub_region)
+        regions: list[Region] = []
+        for region_def in all_locations_table:
+            region = Region(region_def.name, self.player, self.multiworld)
+            _ = region.add_exits([LevelName.HUB])
+            region.add_locations(
+                {loc.full_identifier: location_name_to_id[loc.full_identifier] for loc in region_def.locations}
+            )
+            regions.append(region)
+        self.multiworld.regions.extend(regions)
+        _ = hub_region.add_exits([region.name for region in regions])
         return
 
-    @override
     def create_items(self) -> None:
         super().create_items()
         self.multiworld.itempool += [
@@ -52,7 +57,6 @@ class MuppetMonsterAdventureWorld(World):
         ]
         return
 
-    @override
     def set_rules(self) -> None:
         super().set_rules()
 
@@ -66,6 +70,6 @@ class MuppetMonsterAdventureWorld(World):
                         items: list[str] = [ability_to_item[opt].name for opt in option]
                         options.append(rules.HasAll(*items))
                     rule = rules.And(rule, rules.Or(*options))
-                self.set_rule(self.get_location(location.name), rule)
+                self.set_rule(self.get_location(location.full_identifier), rule)
 
         return

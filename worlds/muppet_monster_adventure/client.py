@@ -1,14 +1,13 @@
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from worlds._bizhawk.context import BizHawkClientContext
 
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
 
 from .items import MMAAbilityItemData, MMALevelItemData, item_id_to_item
 from .locations import LocationType, location_name_to_id, location_type_lookup, region_lookup
-
-if TYPE_CHECKING:
-    from worlds._bizhawk.context import BizHawkClientContext
-
 from .shared import AbilityFlag, game_name
 
 
@@ -109,7 +108,6 @@ class MMAGameState:
         }
 
 
-@final
 class MMAClient(BizHawkClient):
     game = game_name
     system = "PSX"
@@ -124,7 +122,6 @@ class MMAClient(BizHawkClient):
         self.game_state: MMAGameState = MMAGameState()
         self.last_received_index = 0
 
-    @override
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
             # NTSC
@@ -143,7 +140,6 @@ class MMAClient(BizHawkClient):
         ctx.watcher_timeout = 0.125
         return True
 
-    @override
     def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict[object, object]) -> None:
         super().on_package(ctx, cmd, args)  # pyright: ignore[reportUnknownMemberType]
 
@@ -156,17 +152,15 @@ class MMAClient(BizHawkClient):
             # TODO: race countdown
         pass
 
-    @override
     async def set_auth(self, ctx: "BizHawkClientContext") -> None:
         await ctx.get_username()
 
-    @override
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
 
         # TODO: uncomment once dev testing done
-        # if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None or ctx.auth is None:
-        #     return
+        if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None or ctx.auth is None:
+            return
 
         # TODO: first run should validate current state
 

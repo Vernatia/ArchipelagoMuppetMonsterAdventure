@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import final
 
 from .shared import AbilityFlag, LevelName, base_id
 
@@ -16,7 +15,6 @@ class LocationType(Enum):
     BOSS = "Boss Defeat"
 
 
-@final
 class MMALocationData:
     ability_requirements: list[AbilityFlag] | None
 
@@ -31,7 +29,6 @@ class MMALocationData:
         self.full_identifier: str = ""
 
 
-@final
 class MMARegion:
     def __init__(
         self, name: LevelName, identifier: str, state_address: int | None, locations: list[MMALocationData]
@@ -75,7 +72,6 @@ all_locations_table: list[MMARegion] = [
             MMALocationData(
                 "Noseferatu Amulet - Up stairs after triggering switch",
                 LocationType.NOSEFERATU_AMULET,
-                [AbilityFlag.GLOVE],
             ),
             # Energy
             MMALocationData("Evil Energy - 50%", LocationType.ENERGY),
@@ -176,7 +172,7 @@ region_lookup: dict[str, MMARegion] = {region.name: region for region in all_loc
 location_type_lookup: dict[LocationType, list[MMALocationData]] = {}
 for region in all_locations_table:
     for loc in region.locations:
-        location_type_lookup.update({loc.type: location_type_lookup[loc.type] + [loc]})
+        location_type_lookup.update({loc.type: (location_type_lookup.get(loc.type) or []) + [loc]})
 
 # Maps locations to their AP identifier
 location_name_to_id: dict[str, int] = {}
