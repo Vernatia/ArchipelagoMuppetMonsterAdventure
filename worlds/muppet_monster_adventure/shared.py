@@ -21,3 +21,10 @@ class LevelName(StrEnum):
     HALLWAYS_OF_DOOM = "Hallways of Doom"
     POKER_FACES = "Poker Faces"
     NOSEFERATU = "Noseferatu"
+
+
+whitelisted_starting_levels: list[LevelName] = [
+    LevelName.PEACOCK_PURGATORY,
+    LevelName.HALLWAYS_OF_DOOM,
+    LevelName.POKER_FACES,
+]

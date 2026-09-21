@@ -10,7 +10,6 @@ from .items import (
     filler_items_table,
     item_name_groups,
     item_name_to_id,
-    max_level_index,
 )
 from .locations import (
     LocationType,
@@ -19,7 +18,7 @@ from .locations import (
     location_name_to_id,
     location_type_lookup,
 )
-from .shared import LevelName, game_name
+from .shared import LevelName, game_name, whitelisted_starting_levels
 
 
 class MMAItem(Item):
@@ -85,10 +84,11 @@ class MuppetMonsterAdventureWorld(World):
         pool: list[Item] = []
         # TODO: use list of whitelisted level names instead of just any.
         # Certain options may rule out some levels, since they will have zero starting locations.
-        starter_level_index = self.random.randrange(0, max_level_index)
+        starter_level_index = self.random.randrange(0, len(whitelisted_starting_levels))
+        starter_level_name = whitelisted_starting_levels[starter_level_index]
         for item_def in all_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
-            if type(item_def) is not MMALevelItemData or item_def.index != starter_level_index:
+            if type(item_def) is not MMALevelItemData or item_def.name != starter_level_name:
                 pool.append(item)
             else:
                 self.starting_level = item
