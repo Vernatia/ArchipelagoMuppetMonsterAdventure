@@ -95,7 +95,7 @@ all_locations_table: list[MMARegion] = [
             MMALocationData("2nd Muppet Token", LocationType.TOKEN),
             MMALocationData("3rd Muppet Token", LocationType.TOKEN),
             MMALocationData("4th Muppet Token", LocationType.TOKEN),
-            MMALocationData("5th Muppet Token", LocationType.TOKEN, [AbilityFlag.CLIMB]),
+            MMALocationData("5th Muppet Token", LocationType.TOKEN, [AbilityFlag.CLIMB, AbilityFlag.GLIDE]),
             # Bonus
             MMALocationData("Bonus - B", LocationType.BONUS),
             MMALocationData("Bonus - O", LocationType.BONUS),

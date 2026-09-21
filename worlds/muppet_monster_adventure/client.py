@@ -202,10 +202,11 @@ class MMAClient(BizHawkClient):
         await self.check_locations(ctx)
         await self.receive_items(ctx)
 
-        # This flag seems to be 10 when a level is ready, and 40 when a level is loading.
+        # This flag seems to be 16 when a level is ready, and 64 when a level is loading.
         load_state = await bizhawk.read(ctx.bizhawk_ctx, [(0x00EAB9, 1, "MainRAM")])
         load_state_int = int.from_bytes(load_state[0], byteorder="little")
-        if load_state_int != 10:
+        if load_state_int != 16:
+            logger.info(f"Level state is not ready: {load_state_int}")
             return
 
         if self.active_level_name == "HUB":
