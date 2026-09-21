@@ -115,7 +115,7 @@ class MMAAmuletState:
 
 class MMAGameState:
     def __init__(self) -> None:
-        # TODO: level unlocking (starts at 0x0AA0C4)
+        self.bosses_beaten: list[bool] = [False] * 5
         self.morphs: MMAMorphState = MMAMorphState()
         self.level_states: dict[str, MMALevelState] = {
             x.identifier: MMALevelState(x.name, x.state_address, x.energy_count)
@@ -302,7 +302,18 @@ class MMAClient(BizHawkClient):
                 _ = await ctx.check_locations(level_state_collections)
             pass
         else:
-            # TODO: boss defeated check. Will need to validate the number change once
+            # TODO: Find a better method of checking this
+            bosses_beaten_bytes = await bizhawk.read(ctx.bizhawk_ctx, [(0x0B8904, 1, "MainRAM")])
+            bosses_beaten = int.from_bytes(bosses_beaten_bytes[0], byteorder="little")
+            if bosses_beaten > 0:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B8904, [0], "MainRAM")])
+                # This flag stores the highest value boss number. For our purposes we treat this as
+                # the most recent boss number.
+                boss_index = bosses_beaten - 1
+                self.game_state.bosses_beaten[boss_index] = True
+                location = location_type_lookup[LocationType.BOSS][boss_index]
+                ap_id = location_name_to_id[location.full_identifier]
+                _ = await ctx.check_locations([ap_id])
             pass
 
     async def receive_items(self, ctx: "BizHawkClientContext") -> None:
