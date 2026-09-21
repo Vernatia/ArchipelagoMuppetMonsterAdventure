@@ -12,7 +12,13 @@ from .items import (
     item_name_to_id,
     max_level_index,
 )
-from .locations import all_locations_table, location_name_groups, location_name_to_id
+from .locations import (
+    LocationType,
+    all_locations_table,
+    location_name_groups,
+    location_name_to_id,
+    location_type_lookup,
+)
 from .shared import LevelName, game_name
 
 
@@ -40,6 +46,7 @@ class MuppetMonsterAdventureWorld(World):
         super().__init__(multiworld, player)
         self.starting_level: Item
         self.location_count = 0
+        self.goal_locations: list[tuple[str, str]] = []
 
     def get_filler_item_name(self) -> str:
         return "Nothing"
@@ -59,8 +66,14 @@ class MuppetMonsterAdventureWorld(World):
         regions: list[Region] = []
         for region_def in all_locations_table:
             region = Region(region_def.name, self.player, self.multiworld)
-            locations = {loc.full_identifier: location_name_to_id[loc.full_identifier] for loc in region_def.locations}
-            self.location_count += len(locations)
+            locations: dict[str, int] = {}
+            for loc in region_def.locations:
+                self.location_count += 1
+                if loc.type != LocationType.BOSS:
+                    locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
+                else:
+                    self.goal_locations.append((region_def.name, loc.full_identifier))
+                    pass
             region.add_locations(locations)
             regions.append(region)
         self.multiworld.regions.extend(regions)
@@ -79,6 +92,14 @@ class MuppetMonsterAdventureWorld(World):
                 pool.append(item)
             else:
                 self.starting_level = item
+
+        for region, location in self.goal_locations:
+            region = self.get_region(region)
+            _ = region.add_event(
+                location,
+                None,
+                rules.CanReachRegion(region.name),
+            )
 
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
@@ -118,4 +139,7 @@ class MuppetMonsterAdventureWorld(World):
                     rule = rules.And(rule, rules.Or(*options))
                 self.set_rule(self.get_location(location.full_identifier), rule)
 
+        boss_locations = [loc.full_identifier for loc in location_type_lookup[LocationType.BOSS]]
+        print(f"Boss locations: {boss_locations}")
+        self.set_completion_rule(rules.HasAll(*boss_locations))
         return

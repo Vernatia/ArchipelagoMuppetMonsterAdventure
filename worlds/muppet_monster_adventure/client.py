@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
 
 import worlds._bizhawk as bizhawk
+from NetUtils import ClientStatus
 from worlds._bizhawk.client import BizHawkClient
 
 from .items import MMAAbilityItemData, MMALevelItemData, item_id_to_item
@@ -144,7 +145,9 @@ class MMAClient(BizHawkClient):
         self.last_amulets_flags: list[bytes] = [bytes(0)]
         self.active_level_name: str = ""
         self.game_state: MMAGameState = MMAGameState()
-        self.last_received_index = 0
+        self.last_received_index: int = 0
+        self.boss_goal_count: int = 1
+        self.goaled: bool = False
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
@@ -314,6 +317,19 @@ class MMAClient(BizHawkClient):
                 location = location_type_lookup[LocationType.BOSS][boss_index]
                 ap_id = location_name_to_id[location.full_identifier]
                 _ = await ctx.check_locations([ap_id])
+
+                completed_bosses = list(filter(lambda b: b, self.game_state.bosses_beaten))
+                if len(completed_bosses) >= self.boss_goal_count:
+                    logger.info("Goaled")
+                    self.goaled = True
+                    await ctx.send_msgs(
+                        [
+                            {
+                                "cmd": "StatusUpdate",
+                                "status": ClientStatus.CLIENT_GOAL,
+                            }
+                        ]
+                    )
             pass
 
     async def receive_items(self, ctx: "BizHawkClientContext") -> None:
