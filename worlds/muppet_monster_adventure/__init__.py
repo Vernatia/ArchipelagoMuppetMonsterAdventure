@@ -68,8 +68,8 @@ class MuppetMonsterAdventureWorld(World):
             region = Region(region_def.name, self.player, self.multiworld)
             locations: dict[str, int] = {}
             for loc in region_def.locations:
-                self.location_count += 1
                 if loc.type != LocationType.BOSS:
+                    self.location_count += 1
                     locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
                 else:
                     self.goal_locations.append((region_def.name, loc.full_identifier))
@@ -93,13 +93,10 @@ class MuppetMonsterAdventureWorld(World):
             else:
                 self.starting_level = item
 
-        for region, location in self.goal_locations:
-            region = self.get_region(region)
-            _ = region.add_event(
-                location,
-                None,
-                rules.CanReachRegion(region.name),
-            )
+        # Boss event flags
+        for region_name, location in self.goal_locations:
+            region = self.get_region(region_name)
+            _ = region.add_event(location)
 
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
