@@ -268,7 +268,6 @@ class MMAClient(BizHawkClient):
             level_changes = await level.process_changes(ctx)
             # Energy changes
             if level_changes.energy is not None:
-                logger.info(f"Energy collected - {level_changes.energy}")
                 half_energy = level.max_energy / 2
                 if level.energy >= half_energy and level_changes.previous_energy < half_energy:
                     # Emit 50% energy
@@ -284,7 +283,6 @@ class MMAClient(BizHawkClient):
                     pass
             # Token changes
             if level_changes.tokens is not None:
-                logger.info(f"Token collected - {level_changes.tokens}")
                 for i in range(level_changes.tokens - level_changes.previous_tokens):
                     location = region_lookup[LocationType.TOKEN][level_changes.previous_tokens + i]
                     ap_id = location_name_to_id[location.full_identifier]
@@ -293,7 +291,6 @@ class MMAClient(BizHawkClient):
 
             # Bonus changes
             if level_changes.bonus_changes is not None:
-                logger.info(f"Bonus collected - {level_changes.bonus_changes}")
                 for idx in level_changes.bonus_changes:
                     location = region_lookup[LocationType.BONUS][idx]
                     ap_id = location_name_to_id[location.full_identifier]
