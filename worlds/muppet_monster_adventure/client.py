@@ -209,7 +209,6 @@ class MMAClient(BizHawkClient):
         load_state = await bizhawk.read(ctx.bizhawk_ctx, [(0x00EAB9, 1, "MainRAM")])
         load_state_int = int.from_bytes(load_state[0], byteorder="little")
         if load_state_int != 16:
-            logger.info(f"Level state is not ready: {load_state_int}")
             return
 
         if self.active_level_name == "HUB":
