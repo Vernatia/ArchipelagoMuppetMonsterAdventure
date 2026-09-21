@@ -18,7 +18,12 @@ class LocationType(Enum):
 class MMALocationData:
     ability_requirements: list[AbilityFlag] | None
 
-    def __init__(self, name: str, type: LocationType, ability_requirements: list[AbilityFlag] | None = None):
+    def __init__(
+        self,
+        name: str,
+        type: LocationType,
+        ability_requirements: list[AbilityFlag] | None = None,
+    ):
         self.name: str = name
         self.type: LocationType = type
         # Each flag lists the unique combination of abilities which unlocks this location.
@@ -31,11 +36,17 @@ class MMALocationData:
 
 class MMARegion:
     def __init__(
-        self, name: LevelName, identifier: str, state_address: int | None, locations: list[MMALocationData]
+        self,
+        name: LevelName,
+        identifier: str,
+        state_address: int | None,
+        energy_count: int,
+        locations: list[MMALocationData],
     ) -> None:
         self.name: str = name.value
         self.identifier: str = identifier
         self.state_address: int | None = state_address
+        self.energy_count: int = energy_count
         self.locations: list[MMALocationData] = locations
         pass
 
@@ -46,6 +57,7 @@ all_locations_table: list[MMARegion] = [
         LevelName.PEACOCK_PURGATORY,
         "CASTLE1",
         0x0CCB86,
+        300,
         [
             # Amulets
             MMALocationData("Wocka Wocka Werebear Amulet - By tutorial flags", LocationType.WEREBEAR_AMULET),
@@ -96,6 +108,7 @@ all_locations_table: list[MMARegion] = [
         LevelName.HALLWAYS_OF_DOOM,
         "CASTLE2",
         0x0CCBEE,
+        320,
         [
             # Amulets
             MMALocationData("Ghoul-friend Amulet - Behind spawn", LocationType.GHOUL_FRIEND_AMULET),
@@ -129,12 +142,13 @@ all_locations_table: list[MMARegion] = [
         LevelName.POKER_FACES,
         "CASTLE3",
         0x0CCC56,
+        350,
         [
             # Amulets
-            MMALocationData("Ker-monster Amulet - On lone pillar in lava", LocationType.GHOUL_FRIEND_AMULET),
-            MMALocationData("Ker-monster Amulet - By search light towers", LocationType.GHOUL_FRIEND_AMULET),
-            MMALocationData("Ker-monster Amulet - On trio of pillars in lava", LocationType.GHOUL_FRIEND_AMULET),
-            MMALocationData("Ker-monster Amulet - By pushable block", LocationType.GHOUL_FRIEND_AMULET),
+            MMALocationData("Ker-monster Amulet - On lone pillar in lava", LocationType.KER_MONSTER_AMULET),
+            MMALocationData("Ker-monster Amulet - By search light towers", LocationType.KER_MONSTER_AMULET),
+            MMALocationData("Ker-monster Amulet - On trio of pillars in lava", LocationType.KER_MONSTER_AMULET),
+            MMALocationData("Ker-monster Amulet - By pushable block", LocationType.KER_MONSTER_AMULET),
             # Energy
             MMALocationData("Evil Energy - 50%", LocationType.ENERGY, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
             MMALocationData(
@@ -162,7 +176,13 @@ all_locations_table: list[MMARegion] = [
             ),
         ],
     ),
-    MMARegion(LevelName.NOSEFERATU, "CASTLEB", None, [MMALocationData("Boss defeated", LocationType.BOSS)]),
+    MMARegion(
+        LevelName.NOSEFERATU,
+        "CASTLEB",
+        None,
+        0,
+        [MMALocationData("Boss defeated", LocationType.BOSS)],
+    ),
 ]
 
 # Maps region name to the region data definition
@@ -170,9 +190,14 @@ region_lookup: dict[str, MMARegion] = {region.name: region for region in all_loc
 
 # Lists all locations, by type
 location_type_lookup: dict[LocationType, list[MMALocationData]] = {}
+location_type_lookup_by_region: dict[str, dict[LocationType, list[MMALocationData]]] = {}
 for region in all_locations_table:
     for loc in region.locations:
         location_type_lookup.update({loc.type: (location_type_lookup.get(loc.type) or []) + [loc]})
+        # Store by region for level-based locations
+        region_entry = location_type_lookup_by_region.get(region.name) or {}
+        region_entry.update({loc.type: (region_entry.get(loc.type) or []) + [loc]})
+        location_type_lookup_by_region.update({region.name: region_entry})
 
 # Maps locations to their AP identifier
 location_name_to_id: dict[str, int] = {}

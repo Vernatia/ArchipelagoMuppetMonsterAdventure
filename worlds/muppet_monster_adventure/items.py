@@ -20,8 +20,8 @@ class MMAItemData(ABC):
 class MMAAbilityItemData(MMAItemData):
     group = "Abilities"
 
-    def __init__(self, name: str, ability_type: AbilityFlag, classification: ItemClassification) -> None:
-        super().__init__(name, classification)
+    def __init__(self, name: str, ability_type: AbilityFlag) -> None:
+        super().__init__(name, ItemClassification.progression)
         self.ability_type: AbilityFlag = ability_type
 
 
@@ -29,8 +29,8 @@ class MMAAbilityItemData(MMAItemData):
 class MMALevelItemData(MMAItemData):
     group = "Levels"
 
-    def __init__(self, name: LevelName, classification: ItemClassification) -> None:
-        super().__init__(name.value, classification)
+    def __init__(self, name: LevelName) -> None:
+        super().__init__(name.value, ItemClassification.progression)
         self.index: int = 0
 
 
@@ -38,108 +38,30 @@ class MMALevelItemData(MMAItemData):
 class MMAFillerItemData(MMAItemData):
     group = "Filler"
 
+    def __init__(self, name: str) -> None:
+        super().__init__(name, ItemClassification.filler)
+
+
+filler_items_table: list[MMAFillerItemData] = [
+    MMAFillerItemData("Nothing"),
+]
 
 all_items_table: Sequence[MMAItemData] = [
-    # Filler
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
-    MMAFillerItemData("Nothing", ItemClassification.filler),
     # Abilities
-    MMAAbilityItemData("Gliding", AbilityFlag.GLIDE, ItemClassification.progression),
-    MMAAbilityItemData("Climbing", AbilityFlag.CLIMB, ItemClassification.progression),
-    MMAAbilityItemData("Block Pushing", AbilityFlag.PUSH, ItemClassification.progression),
-    MMAAbilityItemData("Swimming", AbilityFlag.SWIM, ItemClassification.progression),
-    MMAAbilityItemData("Smashing", AbilityFlag.SMASH, ItemClassification.progression),
+    MMAAbilityItemData("Gliding", AbilityFlag.GLIDE),
+    MMAAbilityItemData("Climbing", AbilityFlag.CLIMB),
+    MMAAbilityItemData("Block Pushing", AbilityFlag.PUSH),
+    MMAAbilityItemData("Swimming", AbilityFlag.SWIM),
+    MMAAbilityItemData("Smashing", AbilityFlag.SMASH),
     # TODO: figure out how to lock these (if possible)
     # MMAItemData("Power Glove", IC.progression),
     # MMAItemData("Spin", IC.progression),
     # Levels
-    MMALevelItemData(LevelName.PEACOCK_PURGATORY, ItemClassification.progression),
-    MMALevelItemData(LevelName.HALLWAYS_OF_DOOM, ItemClassification.progression),
-    MMALevelItemData(LevelName.POKER_FACES, ItemClassification.progression),
-    MMALevelItemData(LevelName.NOSEFERATU, ItemClassification.progression),
+    MMALevelItemData(LevelName.PEACOCK_PURGATORY),
+    MMALevelItemData(LevelName.HALLWAYS_OF_DOOM),
+    MMALevelItemData(LevelName.POKER_FACES),
+    MMALevelItemData(LevelName.NOSEFERATU),
+    *filler_items_table,
 ]
 
 item_name_to_id: dict[str, int] = {}

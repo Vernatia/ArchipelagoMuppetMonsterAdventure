@@ -7,6 +7,7 @@ from .items import (
     MMALevelItemData,
     ability_to_item,
     all_items_table,
+    filler_items_table,
     item_name_groups,
     item_name_to_id,
     max_level_index,
@@ -38,6 +39,7 @@ class MuppetMonsterAdventureWorld(World):
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
         self.starting_level: Item
+        self.location_count = 0
 
     def get_filler_item_name(self) -> str:
         return "Nothing"
@@ -57,16 +59,19 @@ class MuppetMonsterAdventureWorld(World):
         regions: list[Region] = []
         for region_def in all_locations_table:
             region = Region(region_def.name, self.player, self.multiworld)
-            region.add_locations(
-                {loc.full_identifier: location_name_to_id[loc.full_identifier] for loc in region_def.locations}
-            )
+            locations = {loc.full_identifier: location_name_to_id[loc.full_identifier] for loc in region_def.locations}
+            self.location_count += len(locations)
+            region.add_locations(locations)
             regions.append(region)
         self.multiworld.regions.extend(regions)
         return
 
     def create_items(self) -> None:
         super().create_items()
+
         pool: list[Item] = []
+        # TODO: use list of whitelisted level names instead of just any.
+        # Certain options may rule out some levels, since they will have zero starting locations.
         starter_level_index = self.random.randrange(0, max_level_index)
         for item_def in all_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
@@ -74,6 +79,21 @@ class MuppetMonsterAdventureWorld(World):
                 pool.append(item)
             else:
                 self.starting_level = item
+
+        # Add buffer filler items to pool
+        diff = self.location_count - len(pool)
+        if diff > 0:
+            for _ in range(diff):
+                filler_idx = self.random.randrange(0, len(filler_items_table))
+                item_def = filler_items_table[filler_idx]
+                pool.append(
+                    MMAItem(
+                        item_def.name,
+                        item_def.classification,
+                        item_name_to_id[item_def.name],
+                        self.player,
+                    )
+                )
 
         self.multiworld.itempool += pool
         return

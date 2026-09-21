@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
@@ -7,7 +7,13 @@ import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
 
 from .items import MMAAbilityItemData, MMALevelItemData, item_id_to_item
-from .locations import LocationType, location_name_to_id, location_type_lookup, region_lookup
+from .locations import (
+    LocationType,
+    location_name_to_id,
+    location_type_lookup,
+    location_type_lookup_by_region,
+    region_lookup,
+)
 from .shared import AbilityFlag, game_name
 
 
@@ -46,37 +52,53 @@ class MMAMorphState:
         return packed_data.to_bytes(2, "little")
 
 
+class LevelUpdate(NamedTuple):
+    previous_energy: int
+    previous_tokens: int
+    energy: int | None
+    tokens: int | None
+    bonus_changes: list[int] | None
+
+
 class MMALevelState:
     def __init__(
         self,
+        name: str,
         address: int,
+        max_energy: int,
     ) -> None:
+        self.name: str = name
         self.address: int = address
+        self.max_energy: int = max_energy
         self.bonus: MMAFlagField = MMAFlagField(size=5, offset=0)
-        self.coins: int = 0
+        # self.coins: int = 0
         self.tokens: int = 0
         self.energy: int = 0
 
-    # TODO: what return?
-    async def process_changes(self, ctx: "BizHawkClientContext") -> bool:
+    async def process_changes(self, ctx: "BizHawkClientContext") -> LevelUpdate:
         # TODO: technically we could do visit-sanity if we wanted, since the game tracks it.
         # Would need to adjust all of this though, since it's 2 bytes prior to the Bonus.
         data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.address, 6, "MainRAM")]))[0]
-        bonus_changes = self.bonus.process_changes(data[0])
-        tokens = data[1]
-        coins = int.from_bytes(data[2:4], byteorder="little")
-        energy = int.from_bytes(data[4:6], byteorder="little")
 
-        has_change: bool = False
-        if len(bonus_changes) > 0 or tokens > self.tokens or coins > self.coins or energy > self.energy:
-            has_change = True
+        bonus_changes = self.bonus.process_changes(data[0])
+        updated_tokens = data[1]
+        # coins = int.from_bytes(data[2:4], byteorder="little")
+        updated_energy = int.from_bytes(data[4:6], byteorder="little")
+
+        update = LevelUpdate(
+            self.energy,
+            self.tokens,
+            updated_energy if updated_energy > self.energy else None,
+            updated_tokens if updated_tokens > self.tokens else None,
+            bonus_changes if len(bonus_changes) > 0 else None,
+        )
 
         # Sometimes fields like these are flipped up and down for effect.
         # Don't know if these specifically are, but better safe than sorry.
-        self.tokens = max(tokens, self.tokens)
-        self.coins = max(coins, self.coins)
-        self.energy = max(energy, self.energy)
-        return has_change
+        self.energy = max(updated_energy, self.energy)
+        # self.coins = max(coins, self.coins)
+        self.tokens = max(updated_tokens, self.tokens)
+        return update
 
     def print(self) -> str:
         return f"Tokens: {self.tokens}, Energy: {self.energy}, Bonus: {self.bonus.flags}"
@@ -96,7 +118,9 @@ class MMAGameState:
         # TODO: level unlocking (starts at 0x0AA0C4)
         self.morphs: MMAMorphState = MMAMorphState()
         self.level_states: dict[str, MMALevelState] = {
-            x.identifier: MMALevelState(x.state_address) for x in region_lookup.values() if x.state_address is not None
+            x.identifier: MMALevelState(x.name, x.state_address, x.energy_count)
+            for x in region_lookup.values()
+            if x.state_address is not None
         }
         self.level_unlocks: list[bool] = [False for _ in region_lookup.values()]
         self.amulets: dict[LocationType, MMAAmuletState] = {
@@ -179,6 +203,7 @@ class MMAClient(BizHawkClient):
         await self.check_locations(ctx)
         await self.receive_items(ctx)
 
+        # TODO: might need to look for a "level loaded" flag, because editing these can cause the game to crash...
         if self.active_level_name == "HUB":
             # Write level unlocks, always have all regions unlocked
             write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks]
@@ -214,7 +239,7 @@ class MMAClient(BizHawkClient):
             flags_int = int.from_bytes(amulets_flag[0], byteorder="little")
 
             # Extract amulet pickup changes
-            amulet_location_changes: list[int] = []
+            amulet_collections: list[int] = []
             for amulet_type, state in self.game_state.amulets.items():
                 changes = state.process_changes(flags_int)
                 # TODO: emit location collection
@@ -223,15 +248,53 @@ class MMAClient(BizHawkClient):
                     for item in changes:
                         location = location_type_lookup[amulet_type][item]
                         ap_id = location_name_to_id[location.full_identifier]
-                        amulet_location_changes.append(ap_id)
+                        amulet_collections.append(ap_id)
 
-            if len(amulet_location_changes) > 0:
+            if len(amulet_collections) > 0:
                 # TODO: do we want to do anything with this information?
-                _ = await ctx.check_locations(amulet_location_changes)
+                _ = await ctx.check_locations(amulet_collections)
 
         if (level := self.game_state.level_states.get(self.active_level_name)) is not None:
-            if await level.process_changes(ctx):
-                logger.info(f"Level data updated - {level.print()}")
+            level_state_collections: list[int] = []
+            region_lookup = location_type_lookup_by_region[level.name]
+
+            level_changes = await level.process_changes(ctx)
+            # Energy changes
+            if level_changes.energy is not None:
+                logger.info(f"Energy collected - {level_changes.energy}")
+                half_energy = level.max_energy / 2
+                if level.energy >= half_energy and level_changes.previous_energy < half_energy:
+                    # Emit 50% energy
+                    location = region_lookup[LocationType.ENERGY][0]
+                    ap_id = location_name_to_id[location.full_identifier]
+                    level_state_collections.append(ap_id)
+                    pass
+                elif level.energy == level.max_energy and level_changes.previous_energy < level.max_energy:
+                    # Emit 100% energy
+                    location = region_lookup[LocationType.ENERGY][1]
+                    ap_id = location_name_to_id[location.full_identifier]
+                    level_state_collections.append(ap_id)
+                    pass
+            # Token changes
+            if level_changes.tokens is not None:
+                logger.info(f"Token collected - {level_changes.tokens}")
+                for i in range(level_changes.tokens - level_changes.previous_tokens):
+                    location = region_lookup[LocationType.TOKEN][level_changes.previous_tokens + i]
+                    ap_id = location_name_to_id[location.full_identifier]
+                    level_state_collections.append(ap_id)
+                pass
+
+            # Bonus changes
+            if level_changes.bonus_changes is not None:
+                logger.info(f"Bonus collected - {level_changes.bonus_changes}")
+                for idx in level_changes.bonus_changes:
+                    location = region_lookup[LocationType.BONUS][idx]
+                    ap_id = location_name_to_id[location.full_identifier]
+                    level_state_collections.append(ap_id)
+                pass
+
+            if len(level_state_collections) > 0:
+                _ = await ctx.check_locations(level_state_collections)
             pass
         # TODO: boss defeated check. Will need to validate the number change once
 
