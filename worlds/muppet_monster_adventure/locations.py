@@ -51,8 +51,7 @@ class MMARegion:
         pass
 
 
-# TODO: The amulets should be ordered by their memory flag location. Currently some of these are mis-ordered.
-
+# Note: The order of basically all of these matters, since the client depends on this to check world state.
 # TODO: other regions
 all_locations_table: list[MMARegion] = [
     MMARegion(
