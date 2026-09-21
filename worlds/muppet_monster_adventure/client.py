@@ -182,7 +182,6 @@ class MMAClient(BizHawkClient):
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
 
-        # TODO: uncomment once dev testing done
         if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None or ctx.auth is None:
             return
 
@@ -203,7 +202,12 @@ class MMAClient(BizHawkClient):
         await self.check_locations(ctx)
         await self.receive_items(ctx)
 
-        # TODO: might need to look for a "level loaded" flag, because editing these can cause the game to crash...
+        # This flag seems to be 10 when a level is ready, and 40 when a level is loading.
+        load_state = await bizhawk.read(ctx.bizhawk_ctx, [(0x00EAB9, 1, "MainRAM")])
+        load_state_int = int.from_bytes(load_state[0], byteorder="little")
+        if load_state_int != 10:
+            return
+
         if self.active_level_name == "HUB":
             # Write level unlocks, always have all regions unlocked
             write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.game_state.level_unlocks]
@@ -296,7 +300,9 @@ class MMAClient(BizHawkClient):
             if len(level_state_collections) > 0:
                 _ = await ctx.check_locations(level_state_collections)
             pass
-        # TODO: boss defeated check. Will need to validate the number change once
+        else:
+            # TODO: boss defeated check. Will need to validate the number change once
+            pass
 
     async def receive_items(self, ctx: "BizHawkClientContext") -> None:
         new_items = ctx.items_received[self.last_received_index :]
