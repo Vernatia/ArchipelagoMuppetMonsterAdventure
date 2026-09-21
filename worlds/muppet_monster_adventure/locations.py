@@ -63,30 +63,30 @@ all_locations_table: list[MMARegion] = [
         [
             # Amulets
             MMALocationData("Wocka Wocka Werebear Amulet - By tutorial flags", LocationType.WEREBEAR_AMULET),
-            MMALocationData("Wocka Wocka Werebear Amulet - On stairs near gardener", LocationType.WEREBEAR_AMULET),
-            MMALocationData("Wocka Wocka Werebear Amulet - On hill by lake", LocationType.WEREBEAR_AMULET),
             MMALocationData("Wocka Wocka Werebear Amulet - By climbable wall", LocationType.WEREBEAR_AMULET),
-            MMALocationData("Muck Monster Amulet - By the lake", LocationType.MUCK_MONSTER_AMULET),
+            MMALocationData("Wocka Wocka Werebear Amulet - On hill by lake", LocationType.WEREBEAR_AMULET),
+            MMALocationData("Wocka Wocka Werebear Amulet - On stairs near gardener", LocationType.WEREBEAR_AMULET),
             MMALocationData(
                 "Muck Monster Amulet - Up climbable wall by Werebear Amulet",
                 LocationType.MUCK_MONSTER_AMULET,
                 [AbilityFlag.CLIMB],
             ),
-            MMALocationData("Muck Monster Amulet - On path before climable wall", LocationType.MUCK_MONSTER_AMULET),
             MMALocationData(
-                "Muck Monster Amulet - Up climable wall by Muck Monster Amulet",
+                "Muck Monster Amulet - Up climable wall above other Muck Monster Amulet",
                 LocationType.MUCK_MONSTER_AMULET,
                 [AbilityFlag.CLIMB],
             ),
+            MMALocationData("Muck Monster Amulet - On path before climable wall", LocationType.MUCK_MONSTER_AMULET),
+            MMALocationData("Muck Monster Amulet - By the lake", LocationType.MUCK_MONSTER_AMULET),
+            MMALocationData("Noseferatu Amulet - Up super-jump platform", LocationType.NOSEFERATU_AMULET),
             MMALocationData(
                 "Noseferatu Amulet - Bottom of the lake", LocationType.NOSEFERATU_AMULET, [AbilityFlag.SWIM]
             ),
-            MMALocationData("Noseferatu Amulet - By sundial", LocationType.NOSEFERATU_AMULET),
-            MMALocationData("Noseferatu Amulet - Up super-jump platform", LocationType.NOSEFERATU_AMULET),
             MMALocationData(
                 "Noseferatu Amulet - Up stairs after triggering switch",
                 LocationType.NOSEFERATU_AMULET,
             ),
+            MMALocationData("Noseferatu Amulet - By sundial", LocationType.NOSEFERATU_AMULET),
             # Energy
             MMALocationData("Evil Energy - 50%", LocationType.ENERGY),
             MMALocationData(
@@ -149,8 +149,8 @@ all_locations_table: list[MMARegion] = [
             # Amulets
             MMALocationData("Ker-monster Amulet - On lone pillar in lava", LocationType.KER_MONSTER_AMULET),
             MMALocationData("Ker-monster Amulet - By search light towers", LocationType.KER_MONSTER_AMULET),
-            MMALocationData("Ker-monster Amulet - On trio of pillars in lava", LocationType.KER_MONSTER_AMULET),
             MMALocationData("Ker-monster Amulet - By pushable block", LocationType.KER_MONSTER_AMULET),
+            MMALocationData("Ker-monster Amulet - On trio of pillars in lava", LocationType.KER_MONSTER_AMULET),
             # Energy
             MMALocationData("Evil Energy - 50%", LocationType.ENERGY, [AbilityFlag.PUSH | AbilityFlag.GLIDE]),
             MMALocationData(
