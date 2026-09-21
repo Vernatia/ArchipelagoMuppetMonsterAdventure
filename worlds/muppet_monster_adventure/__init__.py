@@ -67,12 +67,10 @@ class MuppetMonsterAdventureWorld(World):
             region = Region(region_def.name, self.player, self.multiworld)
             locations: dict[str, int] = {}
             for loc in region_def.locations:
-                if loc.type != LocationType.BOSS:
-                    self.location_count += 1
-                    locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
-                else:
-                    self.goal_locations.append((region_def.name, loc.full_identifier))
-                    pass
+                self.location_count += 1
+                locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
+                if loc.type == LocationType.BOSS:
+                    self.goal_locations.append((region_def.name, loc.full_identifier + " event"))
             region.add_locations(locations)
             regions.append(region)
         self.multiworld.regions.extend(regions)
@@ -136,7 +134,7 @@ class MuppetMonsterAdventureWorld(World):
                     rule = rules.And(rule, rules.Or(*options))
                 self.set_rule(self.get_location(location.full_identifier), rule)
 
-        boss_locations = [loc.full_identifier for loc in location_type_lookup[LocationType.BOSS]]
+        boss_locations = [loc.full_identifier + " event" for loc in location_type_lookup[LocationType.BOSS]]
         print(f"Boss locations: {boss_locations}")
         self.set_completion_rule(rules.HasAll(*boss_locations))
         return
