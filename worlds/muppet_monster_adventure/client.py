@@ -136,10 +136,10 @@ class MMAPlayerState:
     def __init__(self) -> None:
         # This is the "Current Lives" address, change this if we want things earlier than it
         self.current_lives_address = 0x0B8908
-        self.current_life_address = 0x0B8909
-        self.max_life_address = 0x0B890A
+        self.current_health_address = 0x0B8909
+        self.max_health_address = 0x0B890A
 
-        # Limit the maximum life and lives to this number
+        # Limit the maximum health and lives to this number
         self.max_limit = 100
 
         # TODO: Identify all the spots where this is all defined
@@ -157,7 +157,7 @@ class MMAPlayerState:
         ctx: "BizHawkClientContext"
     ):
         # Grab the current health and the max health
-        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_life_address, 2, "MainRAM")]))[0]
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_health_address, 2, "MainRAM")]))[0]
         current_health = data[0]
         max_health = data[1]
 
@@ -165,8 +165,8 @@ class MMAPlayerState:
             new_health = current_health + 1 if current_health < max_health else max_health
         else:
             new_health = current_health - 1 if current_health > 0 else 0
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.current_health_address, [new_health], "MainRAM")])
 
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.current_life_address, [new_health], "MainRAM")])
 
 
     async def change_max_health(
@@ -175,15 +175,20 @@ class MMAPlayerState:
         ctx: "BizHawkClientContext"
     ):
         # Grab the max health
-        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.max_life_address, 1, "MainRAM")]))[0]
-        max_health = data[0]
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_health_address, 2, "MainRAM")]))[0]
+        current_health = data[0]
+        max_health = data[1]
 
         if increase:
             new_max_health = max_health + 1 if max_health < self.max_limit else self.max_limit
         else:
             new_max_health = max_health - 1 if max_health > 0 else 0
 
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.max_life_address, [new_max_health], "MainRAM")])
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.max_health_address, [new_max_health], "MainRAM")])
+        # Ensure the current health cannot be above the max health
+
+        if current_health > new_max_health:
+            await bizhawk.write(ctx.bizhawk_ctx, [(self.current_health_address, [new_max_health], "MainRAM")])
 
 
     async def change_current_lives(

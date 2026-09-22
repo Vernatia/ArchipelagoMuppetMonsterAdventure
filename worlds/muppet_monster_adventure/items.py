@@ -53,7 +53,6 @@ class MMATrapItemData(MMAItemData):
 
 
 filler_items_table: list[MMAFillerItemData] = [
-    MMAFillerItemData("Nothing", ItemFlag.NOTHING),
     MMAFillerItemData("Heart", ItemFlag.GAIN_HEALTH),
     MMAFillerItemData("Fly Heart", ItemFlag.GAIN_HEART),
     MMAFillerItemData("Extra Life", ItemFlag.GAIN_LIFE),

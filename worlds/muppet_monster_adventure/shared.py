@@ -34,7 +34,6 @@ class ItemFlag(Flag):
     GAIN_HEALTH = auto(),
     GAIN_HEART  = auto(),
     GAIN_LIFE   = auto(),
-    NOTHING     = auto(),
 
 
 class TrapFlag(Flag):
