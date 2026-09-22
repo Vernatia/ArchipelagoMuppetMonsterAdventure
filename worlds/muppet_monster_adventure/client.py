@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
 
 import worlds._bizhawk as bizhawk
+from NetUtils import ClientStatus
 from worlds._bizhawk.client import BizHawkClient
 
 from .items import MMAAbilityItemData, MMALevelItemData, MMAFillerItemData, MMATrapItemData, item_id_to_item
@@ -115,7 +116,7 @@ class MMAAmuletState:
 
 class MMAGameState:
     def __init__(self) -> None:
-        # TODO: level unlocking (starts at 0x0AA0C4)
+        self.bosses_beaten: list[bool] = [False] * 5
         self.morphs: MMAMorphState = MMAMorphState()
         self.level_states: dict[str, MMALevelState] = {
             x.identifier: MMALevelState(x.name, x.state_address, x.energy_count)
@@ -214,7 +215,9 @@ class MMAClient(BizHawkClient):
         self.active_level_name: str = ""
         self.game_state: MMAGameState = MMAGameState()
         self.player_state: MMAPlayerState = MMAPlayerState()
-        self.last_received_index = 0
+        self.last_received_index: int = 0
+        self.boss_goal_count: int = 1
+        self.goaled: bool = False
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
@@ -276,7 +279,6 @@ class MMAClient(BizHawkClient):
         load_state = await bizhawk.read(ctx.bizhawk_ctx, [(0x00EAB9, 1, "MainRAM")])
         load_state_int = int.from_bytes(load_state[0], byteorder="little")
         if load_state_int != 16:
-            logger.info(f"Level state is not ready: {load_state_int}")
             return
 
         if self.active_level_name == "HUB":
@@ -336,7 +338,6 @@ class MMAClient(BizHawkClient):
             level_changes = await level.process_changes(ctx)
             # Energy changes
             if level_changes.energy is not None:
-                logger.info(f"Energy collected - {level_changes.energy}")
                 half_energy = level.max_energy / 2
                 if level.energy >= half_energy and level_changes.previous_energy < half_energy:
                     # Emit 50% energy
@@ -352,7 +353,6 @@ class MMAClient(BizHawkClient):
                     pass
             # Token changes
             if level_changes.tokens is not None:
-                logger.info(f"Token collected - {level_changes.tokens}")
                 for i in range(level_changes.tokens - level_changes.previous_tokens):
                     location = region_lookup[LocationType.TOKEN][level_changes.previous_tokens + i]
                     ap_id = location_name_to_id[location.full_identifier]
@@ -361,7 +361,6 @@ class MMAClient(BizHawkClient):
 
             # Bonus changes
             if level_changes.bonus_changes is not None:
-                logger.info(f"Bonus collected - {level_changes.bonus_changes}")
                 for idx in level_changes.bonus_changes:
                     location = region_lookup[LocationType.BONUS][idx]
                     ap_id = location_name_to_id[location.full_identifier]
@@ -372,7 +371,31 @@ class MMAClient(BizHawkClient):
                 _ = await ctx.check_locations(level_state_collections)
             pass
         else:
-            # TODO: boss defeated check. Will need to validate the number change once
+            # TODO: Find a better method of checking this
+            bosses_beaten_bytes = await bizhawk.read(ctx.bizhawk_ctx, [(0x0B8904, 1, "MainRAM")])
+            bosses_beaten = int.from_bytes(bosses_beaten_bytes[0], byteorder="little")
+            if bosses_beaten > 0:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B8904, [0], "MainRAM")])
+                # This flag stores the highest value boss number. For our purposes we treat this as
+                # the most recent boss number.
+                boss_index = bosses_beaten - 1
+                self.game_state.bosses_beaten[boss_index] = True
+                location = location_type_lookup[LocationType.BOSS][boss_index]
+                ap_id = location_name_to_id[location.full_identifier]
+                _ = await ctx.check_locations([ap_id])
+
+                completed_bosses = list(filter(lambda b: b, self.game_state.bosses_beaten))
+                if len(completed_bosses) >= self.boss_goal_count:
+                    logger.info("Goaled")
+                    self.goaled = True
+                    await ctx.send_msgs(
+                        [
+                            {
+                                "cmd": "StatusUpdate",
+                                "status": ClientStatus.CLIENT_GOAL,
+                            }
+                        ]
+                    )
             pass
 
     async def receive_items(self, ctx: "BizHawkClientContext") -> None:

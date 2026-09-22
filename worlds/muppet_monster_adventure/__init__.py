@@ -13,8 +13,14 @@ from .items import (
     max_level_index,
     trap_items_table,
 )
-from .locations import all_locations_table, location_name_groups, location_name_to_id
-from .shared import LevelName, game_name
+from .locations import (
+    LocationType,
+    all_locations_table,
+    location_name_groups,
+    location_name_to_id,
+    location_type_lookup,
+)
+from .shared import LevelName, game_name, whitelisted_starting_levels
 
 
 class MMAItem(Item):
@@ -41,6 +47,7 @@ class MuppetMonsterAdventureWorld(World):
         super().__init__(multiworld, player)
         self.starting_level: Item
         self.location_count = 0
+        self.goal_locations: list[tuple[str, str]] = []
 
     def get_filler_item_name(self) -> str:
         return "Nothing"
@@ -60,8 +67,12 @@ class MuppetMonsterAdventureWorld(World):
         regions: list[Region] = []
         for region_def in all_locations_table:
             region = Region(region_def.name, self.player, self.multiworld)
-            locations = {loc.full_identifier: location_name_to_id[loc.full_identifier] for loc in region_def.locations}
-            self.location_count += len(locations)
+            locations: dict[str, int] = {}
+            for loc in region_def.locations:
+                self.location_count += 1
+                locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
+                if loc.type == LocationType.BOSS:
+                    self.goal_locations.append((region_def.name, loc.full_identifier + " event"))
             region.add_locations(locations)
             regions.append(region)
         self.multiworld.regions.extend(regions)
@@ -73,13 +84,19 @@ class MuppetMonsterAdventureWorld(World):
         pool: list[Item] = []
         # TODO: use list of whitelisted level names instead of just any.
         # Certain options may rule out some levels, since they will have zero starting locations.
-        starter_level_index = self.random.randrange(0, max_level_index)
+        starter_level_index = self.random.randrange(0, len(whitelisted_starting_levels))
+        starter_level_name = whitelisted_starting_levels[starter_level_index]
         for item_def in all_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
-            if type(item_def) is not MMALevelItemData or item_def.index != starter_level_index:
+            if type(item_def) is not MMALevelItemData or item_def.name != starter_level_name:
                 pool.append(item)
             else:
                 self.starting_level = item
+
+        # Boss event flags
+        for region_name, location in self.goal_locations:
+            region = self.get_region(region_name)
+            _ = region.add_event(location)
 
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
@@ -132,4 +149,7 @@ class MuppetMonsterAdventureWorld(World):
                     rule = rules.And(rule, rules.Or(*options))
                 self.set_rule(self.get_location(location.full_identifier), rule)
 
+        boss_locations = [loc.full_identifier + " event" for loc in location_type_lookup[LocationType.BOSS]]
+        print(f"Boss locations: {boss_locations}")
+        self.set_completion_rule(rules.HasAll(*boss_locations))
         return

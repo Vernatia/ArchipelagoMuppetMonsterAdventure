@@ -87,13 +87,13 @@ all_items_table: Sequence[MMAItemData] = [
 item_name_to_id: dict[str, int] = {}
 item_id_to_item: dict[int, MMAItemData] = {}
 ability_to_item: dict[AbilityFlag, MMAItemData] = {}
-max_level_index = 0
+__max_level_index = 0
 for idx, item in enumerate(all_items_table):
     item_name_to_id.update({str(item.name): base_id + idx})
     item_id_to_item.update({base_id + idx: item})
     if type(item) is MMALevelItemData:
-        item.index = max_level_index
-        max_level_index += 1
+        item.index = __max_level_index
+        __max_level_index += 1
     elif type(item) is MMAAbilityItemData:
         ability_to_item.update({item.ability_type: item})
 

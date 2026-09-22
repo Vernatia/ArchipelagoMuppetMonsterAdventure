@@ -22,6 +22,11 @@ class LevelName(StrEnum):
     POKER_FACES = "Poker Faces"
     NOSEFERATU = "Noseferatu"
 
+whitelisted_starting_levels: list[LevelName] = [
+    LevelName.PEACOCK_PURGATORY,
+    LevelName.HALLWAYS_OF_DOOM,
+    LevelName.POKER_FACES,
+]
 
 class ItemFlag(Flag):
     GAIN_HEALTH = auto(),
@@ -34,3 +39,4 @@ class TrapFlag(Flag):
     LOSE_HEALTH = auto(),
     LOSE_HEART  = auto(),
     LOSE_LIFE   = auto(),
+]
