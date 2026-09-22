@@ -28,3 +28,15 @@ whitelisted_starting_levels: list[LevelName] = [
     LevelName.HALLWAYS_OF_DOOM,
     LevelName.POKER_FACES,
 ]
+
+
+class ItemFlag(Flag):
+    GAIN_HEALTH = auto(),
+    GAIN_HEART  = auto(),
+    GAIN_LIFE   = auto(),
+
+
+class TrapFlag(Flag):
+    LOSE_HEALTH = auto(),
+    LOSE_HEART  = auto(),
+    LOSE_LIFE   = auto(),

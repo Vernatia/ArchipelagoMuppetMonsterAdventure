@@ -10,6 +10,7 @@ from .items import (
     filler_items_table,
     item_name_groups,
     item_name_to_id,
+    trap_items_table,
 )
 from .locations import (
     LocationType,
@@ -48,7 +49,7 @@ class MuppetMonsterAdventureWorld(World):
         self.goal_locations: list[tuple[str, str]] = []
 
     def get_filler_item_name(self) -> str:
-        return "Nothing"
+        return "Heart"
 
     def get_pre_fill_items(self) -> list["Item"]:
         return [self.starting_level]
@@ -98,10 +99,23 @@ class MuppetMonsterAdventureWorld(World):
 
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
+
+        trap_count = round(diff / 10)
         if diff > 0:
-            for _ in range(diff):
+            for _ in range(diff - trap_count):
                 filler_idx = self.random.randrange(0, len(filler_items_table))
                 item_def = filler_items_table[filler_idx]
+                pool.append(
+                    MMAItem(
+                        item_def.name,
+                        item_def.classification,
+                        item_name_to_id[item_def.name],
+                        self.player,
+                    )
+                )
+            for _ in range(trap_count):
+                trap_idx = self.random.randrange(0, len(trap_items_table))
+                item_def = trap_items_table[trap_idx]
                 pool.append(
                     MMAItem(
                         item_def.name,

@@ -4,7 +4,7 @@ from typing import ClassVar, final
 
 from BaseClasses import ItemClassification
 
-from .shared import AbilityFlag, LevelName, base_id
+from .shared import AbilityFlag, ItemFlag, LevelName, TrapFlag, base_id
 
 
 class MMAItemData(ABC):
@@ -38,12 +38,30 @@ class MMALevelItemData(MMAItemData):
 class MMAFillerItemData(MMAItemData):
     group = "Filler"
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, item_type: ItemFlag) -> None:
         super().__init__(name, ItemClassification.filler)
+        self.item_type: ItemFlag = item_type
+
+
+@final
+class MMATrapItemData(MMAItemData):
+    group = "Trap"
+
+    def __init__(self, name: str, trap_type: TrapFlag) -> None:
+        super().__init__(name, ItemClassification.trap)
+        self.trap_type: TrapFlag = trap_type
 
 
 filler_items_table: list[MMAFillerItemData] = [
-    MMAFillerItemData("Nothing"),
+    MMAFillerItemData("Heart", ItemFlag.GAIN_HEALTH),
+    MMAFillerItemData("Fly Heart", ItemFlag.GAIN_HEART),
+    MMAFillerItemData("Extra Life", ItemFlag.GAIN_LIFE),
+]
+
+trap_items_table: list[MMATrapItemData] = [
+    MMATrapItemData("Ouch!", TrapFlag.LOSE_HEALTH),
+    MMATrapItemData("Fly Away", TrapFlag.LOSE_HEART),
+    MMATrapItemData("No Life Gaming", TrapFlag.LOSE_LIFE),
 ]
 
 all_items_table: Sequence[MMAItemData] = [
@@ -62,6 +80,7 @@ all_items_table: Sequence[MMAItemData] = [
     MMALevelItemData(LevelName.POKER_FACES),
     MMALevelItemData(LevelName.NOSEFERATU),
     *filler_items_table,
+    *trap_items_table,
 ]
 
 item_name_to_id: dict[str, int] = {}

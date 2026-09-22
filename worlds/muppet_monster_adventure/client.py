@@ -7,7 +7,7 @@ import worlds._bizhawk as bizhawk
 from NetUtils import ClientStatus
 from worlds._bizhawk.client import BizHawkClient
 
-from .items import MMAAbilityItemData, MMALevelItemData, item_id_to_item
+from .items import MMAAbilityItemData, MMALevelItemData, MMAFillerItemData, MMATrapItemData, item_id_to_item
 from .locations import (
     LocationType,
     location_name_to_id,
@@ -15,7 +15,7 @@ from .locations import (
     location_type_lookup_by_region,
     region_lookup,
 )
-from .shared import AbilityFlag, game_name
+from .shared import AbilityFlag, ItemFlag, TrapFlag, game_name
 
 
 class MMAFlagField:
@@ -132,6 +132,80 @@ class MMAGameState:
             LocationType.GHOUL_FRIEND_AMULET: MMAAmuletState(16),
         }
 
+class MMAPlayerState:
+    def __init__(self) -> None:
+        # This is the "Current Lives" address, change this if we want things earlier than it
+        self.current_lives_address = 0x0B8908
+        self.current_health_address = 0x0B8909
+        self.max_health_address = 0x0B890A
+
+        # Limit the maximum health and lives to this number
+        self.max_limit = 100
+
+        # TODO: Identify all the spots where this is all defined
+        # Not all of this is player related, feel free to move to where appropriate
+
+        # Total Energy   = 0x0B88FE
+        # Bosses beaten  = 0x0B8904
+        # Total tokens   = 0x0B8906
+        # Current Lives  = 0x0B8908
+        # Current Health = 0x0B8909
+        # Max Health     = 0x0B890A
+    async def change_current_health(
+        self,
+        increase: bool,
+        ctx: "BizHawkClientContext"
+    ):
+        # Grab the current health and the max health
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_health_address, 2, "MainRAM")]))[0]
+        current_health = data[0]
+        max_health = data[1]
+
+        if increase:
+            new_health = current_health + 1 if current_health < max_health else max_health
+        else:
+            new_health = current_health - 1 if current_health > 0 else 0
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.current_health_address, [new_health], "MainRAM")])
+
+
+
+    async def change_max_health(
+        self,
+        increase: bool,
+        ctx: "BizHawkClientContext"
+    ):
+        # Grab the max health
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_health_address, 2, "MainRAM")]))[0]
+        current_health = data[0]
+        max_health = data[1]
+
+        if increase:
+            new_max_health = max_health + 1 if max_health < self.max_limit else self.max_limit
+        else:
+            new_max_health = max_health - 1 if max_health > 0 else 0
+
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.max_health_address, [new_max_health], "MainRAM")])
+        # Ensure the current health cannot be above the max health
+
+        if current_health > new_max_health:
+            await bizhawk.write(ctx.bizhawk_ctx, [(self.current_health_address, [new_max_health], "MainRAM")])
+
+
+    async def change_current_lives(
+        self,
+        increase: bool,
+        ctx: "BizHawkClientContext"
+    ):
+        # Grab the current health and the max health
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.current_lives_address, 1, "MainRAM")]))[0]
+        current_lives = data[0]
+
+        if increase:
+            new_lives = current_lives + 1 if current_lives < self.max_limit else self.max_limit
+        else:
+            new_lives = current_lives - 1 if current_lives > 0 else 0
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.current_lives_address, [new_lives], "MainRAM")])
+
 
 class MMAClient(BizHawkClient):
     game = game_name
@@ -145,6 +219,7 @@ class MMAClient(BizHawkClient):
         self.last_amulets_flags: list[bytes] = [bytes(0)]
         self.active_level_name: str = ""
         self.game_state: MMAGameState = MMAGameState()
+        self.player_state: MMAPlayerState = MMAPlayerState()
         self.last_received_index: int = 0
         self.boss_goal_count: int = 1
         self.goaled: bool = False
@@ -354,8 +429,35 @@ class MMAClient(BizHawkClient):
                 case MMALevelItemData():
                     self.game_state.level_unlocks[item.index] = True
                     pass
+                case MMAFillerItemData():
+                    match item.item_type:
+                        case ItemFlag.GAIN_HEALTH:
+                            await self.player_state.change_current_health(True, ctx)
+                            pass
+                        case ItemFlag.GAIN_HEART:
+                            await self.player_state.change_max_health(True, ctx)
+                            pass
+                        case ItemFlag.GAIN_LIFE:
+                            await self.player_state.change_current_lives(True, ctx)
+                            pass
+                        case _:
+                            pass
+                case MMATrapItemData():
+                    match item.trap_type:
+                        case TrapFlag.LOSE_HEALTH:
+                            await self.player_state.change_current_health(False, ctx)
+                            pass
+                        case TrapFlag.LOSE_HEART:
+                            await self.player_state.change_max_health(False, ctx)
+                            pass
+                        case TrapFlag.LOSE_LIFE:
+                            await self.player_state.change_current_lives(False, ctx)
+                            pass
+                        case _:
+                            pass
+                    pass
                 case _:
                     pass
 
-        self.last_received_index = len(ctx.items_received) - 1
+        self.last_received_index = len(ctx.items_received)
         pass
