@@ -114,7 +114,6 @@ class MMARegion:
 
 
 class EnergyLocationData(NamedTuple):
-    total_energy: int
     half: list[AbilityFlag] | None
     full: list[AbilityFlag] | None
 
@@ -134,46 +133,55 @@ class TokenLocationData(NamedTuple):
     requirements: list[AbilityFlag] | None = None
 
 
+class LevelRegionData(NamedTuple):
+    name: LevelName
+    total_energy: int
+    energy: EnergyLocationData
+    bonus: BonusLocationData
+    tokens: list[TokenLocationData]
+    extra_locations: Sequence[MMALocationData] | None = None
+
+
 class MMALevelRegion(MMARegion):
     def __init__(
         self,
-        name: LevelName,
         ingame_identifier: str,
-        energy_data: EnergyLocationData,
-        bonus_data: BonusLocationData,
-        token_data: list[TokenLocationData],
-        additional_locations: Sequence[MMALocationData] | None = None,
+        data: LevelRegionData,
     ) -> None:
         locations: list[MMALocationData] = [
             *[
-                MMAEnergyLocationData(EnergyAmount.HALF, energy_data.half),
-                MMAEnergyLocationData(EnergyAmount.FULL, energy_data.full),
+                MMAEnergyLocationData(EnergyAmount.HALF, data.energy.half),
+                MMAEnergyLocationData(EnergyAmount.FULL, data.energy.full),
             ],
             *[
-                MMABonusLetterLocationData(BonusLetterType.B, bonus_data.b),
-                MMABonusLetterLocationData(BonusLetterType.O, bonus_data.o),
-                MMABonusLetterLocationData(BonusLetterType.N, bonus_data.n),
-                MMABonusLetterLocationData(BonusLetterType.U, bonus_data.u),
-                MMABonusLetterLocationData(BonusLetterType.S, bonus_data.s),
+                MMABonusLetterLocationData(BonusLetterType.B, data.bonus.b),
+                MMABonusLetterLocationData(BonusLetterType.O, data.bonus.o),
+                MMABonusLetterLocationData(BonusLetterType.N, data.bonus.n),
+                MMABonusLetterLocationData(BonusLetterType.U, data.bonus.u),
+                MMABonusLetterLocationData(BonusLetterType.S, data.bonus.s),
             ],
             *[
                 MMAMuppetTokenLocationData(token.name, token.requirements)
-                for token in [*token_data, TokenLocationData("BONUS", bonus_data.token)]  # Append the bonus token
+                for token in [*data.tokens, TokenLocationData("BONUS", data.bonus.token)]  # Append the bonus token
             ],
-            *(additional_locations if additional_locations is not None else []),
+            *(data.extra_locations if data.extra_locations is not None else []),
         ]
-        super().__init__(name, ingame_identifier, energy_data.total_energy, locations)
+        super().__init__(data.name, ingame_identifier, data.total_energy, locations)
         pass
+
+
+class BossRegionData(NamedTuple):
+    name: LevelName
+    completion_requirements: list[AbilityFlag] | None
 
 
 class MMABossRegion(MMARegion):
     def __init__(
         self,
-        name: LevelName,
         ingame_identifier: str,
-        completion_requirements: list[AbilityFlag] | None,
+        data: BossRegionData,
     ) -> None:
-        super().__init__(name, ingame_identifier, 0, [MMABossLocationData(completion_requirements)])
+        super().__init__(data.name, ingame_identifier, 0, [MMABossLocationData(data.completion_requirements)])
 
 
 # TODO: currently we're assuming checks can be done without caring about taking damage
@@ -182,152 +190,156 @@ class MMABossRegion(MMARegion):
 # BUT!! (and this is a big BUTT) the game does get notably harder to play this way after zone 1.
 # Playtesting is required here...
 
-# TODO: tokens are no longer a count, but individual locations.
+
+class LevelGroup:
+    def __init__(
+        self,
+        identifier: str,
+        one: LevelRegionData,
+        two: LevelRegionData,
+        three: LevelRegionData,
+        boss: BossRegionData,
+    ) -> None:
+        self.one: MMALevelRegion = MMALevelRegion(f"{identifier}1", one)
+        self.two: MMALevelRegion = MMALevelRegion(f"{identifier}2", two)
+        self.three: MMALevelRegion = MMALevelRegion(f"{identifier}3", three)
+        self.boss: MMABossRegion = MMABossRegion(f"{identifier}B", boss)
+        pass
+
+    def flatten(self) -> Sequence[MMARegion]:
+        return [self.one, self.two, self.three, self.boss]
+
 
 # Note: The order of basically all of these matters, since the client depends on this to check world state.
-all_locations_table: list[MMARegion] = [
-    MMALevelRegion(
-        LevelName.PEACOCK_PURGATORY,
-        "CASTLE1",
-        EnergyLocationData(
+level_groups: list[LevelGroup] = [
+    LevelGroup(
+        identifier="CASTLE",
+        one=LevelRegionData(
+            name=LevelName.PEACOCK_PURGATORY,
             total_energy=300,
-            half=[AbilityFlag.GLOVE, AbilityFlag.SPIN, AbilityFlag.GLIDE, AbilityFlag.CLIMB, AbilityFlag.SWIM],
-            full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM | AbilityFlag.GLOVE | AbilityFlag.SPIN],
+            energy=EnergyLocationData(
+                half=[AbilityFlag.GLOVE, AbilityFlag.SPIN, AbilityFlag.GLIDE, AbilityFlag.CLIMB, AbilityFlag.SWIM],
+                full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM | AbilityFlag.GLOVE | AbilityFlag.SPIN],
+            ),
+            bonus=BonusLocationData(
+                b=None,
+                o=None,
+                n=None,
+                u=None,
+                s=[AbilityFlag.GLIDE, AbilityFlag.GLOVE],  # Bat switch platform
+                token=[AbilityFlag.GLIDE, AbilityFlag.GLOVE],
+            ),
+            tokens=[
+                TokenLocationData("By exit"),
+                TokenLocationData("Up Super Jump Pad"),
+                TokenLocationData("Race Percy"),
+                TokenLocationData("Sunflower minigame", [AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
+            ],
+            extra_locations=[
+                # Note: these are ordered by their bitwise flag position (per type)
+                # Werebear
+                MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "By tutorial flags"),
+                MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "By climbable wall"),
+                MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "On hill by lake"),
+                MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "On stairs near gardener"),
+                # Muck Monster
+                MMAAmuletLocationData(
+                    AmuletType.MUCK_MONSTER_AMULET, "Up climbable wall by Werebear Amulet", [AbilityFlag.CLIMB]
+                ),
+                MMAAmuletLocationData(
+                    AmuletType.MUCK_MONSTER_AMULET,
+                    "Up climable wall above other Muck Monster Amulet",
+                    [AbilityFlag.CLIMB],
+                ),
+                MMAAmuletLocationData(AmuletType.MUCK_MONSTER_AMULET, "Along the cliff trail"),
+                MMAAmuletLocationData(AmuletType.MUCK_MONSTER_AMULET, "By the lake"),
+                # Noseferatu
+                MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "Up Super Jump Pad"),
+                MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "Bottom of the lake", [AbilityFlag.SWIM]),
+                MMAAmuletLocationData(
+                    AmuletType.NOSEFERATU_AMULET,
+                    "Up stairs after triggering switch",
+                    [AbilityFlag.GLOVE, AbilityFlag.GLIDE],
+                ),
+                MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "By sundial"),
+            ],
         ),
-        BonusLocationData(
-            b=None,
-            o=None,
-            n=None,
-            u=None,
-            s=[AbilityFlag.GLIDE, AbilityFlag.GLOVE],  # Bat switch platform
-            token=[AbilityFlag.GLIDE, AbilityFlag.GLOVE],
-        ),
-        [
-            TokenLocationData("By exit"),
-            TokenLocationData("Up Super Jump Pad"),
-            TokenLocationData("Race Percy"),
-            TokenLocationData("Sunflower minigame", [AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
-        ],
-        [
-            # Note: these are ordered by their bitwise flag position (per type)
-            # Werebear
-            MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "By tutorial flags"),
-            MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "By climbable wall"),
-            MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "On hill by lake"),
-            MMAAmuletLocationData(AmuletType.WEREBEAR_AMULET, "On stairs near gardener"),
-            # Muck Monster
-            MMAAmuletLocationData(
-                AmuletType.MUCK_MONSTER_AMULET, "Up climbable wall by Werebear Amulet", [AbilityFlag.CLIMB]
-            ),
-            MMAAmuletLocationData(
-                AmuletType.MUCK_MONSTER_AMULET, "Up climable wall above other Muck Monster Amulet", [AbilityFlag.CLIMB]
-            ),
-            MMAAmuletLocationData(AmuletType.MUCK_MONSTER_AMULET, "Along the cliff trail"),
-            MMAAmuletLocationData(AmuletType.MUCK_MONSTER_AMULET, "By the lake"),
-            # Noseferatu
-            MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "Up Super Jump Pad"),
-            MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "Bottom of the lake", [AbilityFlag.SWIM]),
-            MMAAmuletLocationData(
-                AmuletType.NOSEFERATU_AMULET,
-                "Up stairs after triggering switch",
-                [AbilityFlag.GLOVE, AbilityFlag.GLIDE],
-            ),
-            MMAAmuletLocationData(AmuletType.NOSEFERATU_AMULET, "By sundial"),
-        ],
-    ),
-    MMALevelRegion(
-        LevelName.HALLWAYS_OF_DOOM,
-        "CASTLE2",
-        EnergyLocationData(
+        two=LevelRegionData(
+            name=LevelName.HALLWAYS_OF_DOOM,
             total_energy=320,
-            half=[AbilityFlag.SMASH | AbilityFlag.GLOVE],  # Bat switch locks off like 70% of the level
-            full=[AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.SPIN],
+            energy=EnergyLocationData(
+                half=[AbilityFlag.SMASH | AbilityFlag.GLOVE],  # Bat switch locks off like 70% of the level
+                full=[AbilityFlag.SMASH | AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.SPIN],
+            ),
+            bonus=BonusLocationData(
+                b=[AbilityFlag.SMASH],
+                o=[AbilityFlag.SMASH | AbilityFlag.CLIMB],
+                n=[AbilityFlag.SMASH | AbilityFlag.GLOVE],
+                u=[AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE],
+                s=[AbilityFlag.SMASH | AbilityFlag.GLOVE],
+                token=[AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
+            ),
+            tokens=[
+                TokenLocationData("Rizzo", any_weapon_flag(AbilityFlag.SMASH)),
+                TokenLocationData(
+                    "On top of the bookshelves", [AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB]
+                ),
+                TokenLocationData("Smashing minigame", [AbilityFlag.SMASH | AbilityFlag.GLOVE]),
+                TokenLocationData("Near smashable door", [AbilityFlag.SMASH | AbilityFlag.GLOVE]),
+            ],
+            extra_locations=[
+                # Amulets
+                MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Behind spawn"),
+                MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "On left staircase"),
+                MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Top of left staircase"),
+                MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Top of right staircase"),
+            ],
         ),
-        BonusLocationData(
-            b=[AbilityFlag.SMASH],
-            o=[AbilityFlag.SMASH | AbilityFlag.CLIMB],
-            n=[AbilityFlag.SMASH | AbilityFlag.GLOVE],
-            u=[AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE],
-            s=[AbilityFlag.SMASH | AbilityFlag.GLOVE],
-            token=[AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
-        ),
-        [
-            TokenLocationData("Rizzo", any_weapon_flag(AbilityFlag.SMASH)),
-            TokenLocationData("On top of the bookshelves", [AbilityFlag.SMASH | AbilityFlag.GLOVE | AbilityFlag.CLIMB]),
-            TokenLocationData("Smashing minigame", [AbilityFlag.SMASH | AbilityFlag.GLOVE]),
-            TokenLocationData("Near smashable door", [AbilityFlag.SMASH | AbilityFlag.GLOVE]),
-        ],
-        [
-            # Amulets
-            MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Behind spawn"),
-            MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "On left staircase"),
-            MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Top of left staircase"),
-            MMAAmuletLocationData(AmuletType.GHOUL_FRIEND_AMULET, "Top of right staircase"),
-        ],
-    ),
-    MMALevelRegion(
-        LevelName.POKER_FACES,
-        "CASTLE3",
-        EnergyLocationData(
+        three=LevelRegionData(
+            name=LevelName.POKER_FACES,
             total_energy=350,
-            half=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
-            full=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
-        ),
-        BonusLocationData(
-            b=None,
-            o=None,
-            n=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
-            u=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
-            s=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
-            token=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
-        ),
-        [
-            TokenLocationData("Target shooting minigame", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE]),
-            TokenLocationData("Standing pillar by start", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE]),
-            TokenLocationData(
-                "Block minigame", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.SPIN]
+            energy=EnergyLocationData(
+                half=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
+                full=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
             ),
-            TokenLocationData(
-                "Glide to the rooftop", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB]
+            bonus=BonusLocationData(
+                b=None,
+                o=None,
+                n=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
+                u=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
+                s=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
+                token=[AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
             ),
-        ],
-        [
-            # Amulets
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On lone pillar in lava"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By search light towers"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By pushable block"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On trio of pillars in lava"),
-        ],
-    ),
-    MMABossRegion(
-        LevelName.NOSEFERATU_BITES_BACK,
-        "CASTLEB",
-        [AbilityFlag.GLOVE],
-    ),
-    MMARegion(
-        LevelName.GRAVE_MATTERS,
-        "GRVYARD1",
-        350,
-        [],
-    ),
-    MMARegion(
-        LevelName.MOLTEN_MAYHEM,
-        "GRVYARD2",
-        380,
-        [],
-    ),
-    MMARegion(
-        LevelName.SHIVERING_TIMBER_SHOALS,
-        "GRVYARD3",
-        400,
-        [],
-    ),
-    MMABossRegion(
-        LevelName.BEE_WARE_THE_WEREBEAR,
-        "GRVYARDB",
-        [AbilityFlag.SPIN],
+            tokens=[
+                TokenLocationData(
+                    "Target shooting minigame", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE]
+                ),
+                TokenLocationData(
+                    "Standing pillar by start", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE]
+                ),
+                TokenLocationData(
+                    "Block minigame", [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.SPIN]
+                ),
+                TokenLocationData(
+                    "Glide to the rooftop",
+                    [AbilityFlag.PUSH | AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.CLIMB],
+                ),
+            ],
+            extra_locations=[
+                # Amulets
+                MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On lone pillar in lava"),
+                MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By search light towers"),
+                MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By pushable block"),
+                MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On trio of pillars in lava"),
+            ],
+        ),
+        boss=BossRegionData(LevelName.NOSEFERATU_BITES_BACK, [AbilityFlag.GLOVE]),
     ),
 ]
+
+all_locations_table: list[MMARegion] = []
+for group in level_groups:
+    all_locations_table.extend(group.flatten())
 
 # Maps region name to the region data definition
 region_lookup: dict[str, MMARegion] = {region.name: region for region in all_locations_table}
