@@ -63,8 +63,17 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01FB85C, save=0x0CCDDE, save_offset=4),  # Target shooting
                 PickupAddress(active=0x01FB660, save=0x0CCDDD, save_offset=6),  # Ghost hunt
                 PickupAddress(active=0x01F6D04, save=0x0CCDC0, save_offset=0),  # Wall walk
-                PickupAddress(active=0x01F6CD8, save=0x0CCDBF, save_offset=6),  #
-                PickupAddress(active=0x01F3CBC, save=0x0CCD94, save_offset=4),  #
+                PickupAddress(active=0x01F6CD8, save=0x0CCDBF, save_offset=6),  # Hidden room
+                PickupAddress(active=0x01F3CBC, save=0x0CCD94, save_offset=4),  # BONUS
+            ]
+        ),
+        LevelName.GRAVE_MATTERS: LevelPickupTable(
+            tokens=[
+                PickupAddress(active=0x01DCDC0, save=0x0CCE4D, save_offset=4),  # Shells
+                PickupAddress(active=0x01D741C, save=0x0CCE28, save_offset=2),  # Behind smash wall
+                PickupAddress(active=0x01D7448, save=0x0CCE28, save_offset=4),  # Super jump pad
+                PickupAddress(active=0x01DAA10, save=0x0CCE3F, save_offset=6),  # Race Simon
+                PickupAddress(active=0x01D4348, save=0x0CCDFC, save_offset=4),  # BONUS
             ]
         ),
     },

@@ -400,6 +400,28 @@ level_groups: list[LevelGroup] = [
         ),
         three=LevelRegionData(
             name=LevelName.SHIVERING_TIMBER_SHOALS,
+            total_energy=400,
+            energy=EnergyLocationData(
+                half=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+                full=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE | AbilityFlag.SMASH | AbilityFlag.PUSH],
+            ),
+            bonus=BonusLocationData(
+                b=[AbilityFlag.GLIDE],
+                o=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+                n=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+                u=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+                s=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+                token=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE],
+            ),
+            tokens=[
+                TokenLocationData("Shell collecting", [AbilityFlag.GLIDE | AbilityFlag.GLOVE]),
+                TokenLocationData(
+                    "Smashable wall next to Shell Pirate",
+                    [AbilityFlag.GLIDE | AbilityFlag.GLOVE | AbilityFlag.SMASH | AbilityFlag.PUSH],
+                ),
+                TokenLocationData("Super Jump after the sunken ship", [AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE]),
+                TokenLocationData("Race Simon", [AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE]),
+            ],
         ),
         boss=BossRegionData(LevelName.BEE_WARE_THE_WEREBEAR, [AbilityFlag.SPIN]),
     ),
