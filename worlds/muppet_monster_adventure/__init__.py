@@ -51,7 +51,7 @@ class MuppetMonsterAdventureWorld(World):
         self.goal_locations: list[tuple[str, str]] = []
 
     def get_filler_item_name(self) -> str:
-        return "Heart"
+        return self.random.choice(filler_items_table).name
 
     def get_pre_fill_items(self) -> list["Item"]:
         return [self.starting_level, *self.starter_items]
