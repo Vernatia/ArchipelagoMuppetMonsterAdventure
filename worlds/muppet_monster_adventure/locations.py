@@ -349,7 +349,7 @@ for group in level_groups:
 # Maps region name to the region data definition
 region_lookup: dict[str, MMARegion] = {region.name: region for region in all_locations_table}
 non_boss_region_lookup: dict[str, MMARegion] = {
-    region.name: region for region in all_locations_table if type(region) is MMARegion
+    region.name: region for region in all_locations_table if type(region) is MMALevelRegion
 }
 
 # Lists all locations, by type
