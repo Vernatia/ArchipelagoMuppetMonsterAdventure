@@ -293,10 +293,10 @@ all_locations_table: list[MMARegion] = [
         ],
         [
             # Amulets
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "Ker-monster Amulet - On lone pillar in lava"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "Ker-monster Amulet - By search light towers"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "Ker-monster Amulet - By pushable block"),
-            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "Ker-monster Amulet - On trio of pillars in lava"),
+            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On lone pillar in lava"),
+            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By search light towers"),
+            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "By pushable block"),
+            MMAAmuletLocationData(AmuletType.KER_MONSTER_AMULET, "On trio of pillars in lava"),
         ],
     ),
     MMABossRegion(
