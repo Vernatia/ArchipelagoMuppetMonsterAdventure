@@ -77,7 +77,7 @@ required_items_table: Sequence[MMAItemData] = [
     MMALevelItemData(LevelName.PEACOCK_PURGATORY),
     MMALevelItemData(LevelName.HALLWAYS_OF_DOOM),
     MMALevelItemData(LevelName.POKER_FACES),
-    MMALevelItemData(LevelName.NOSEFERATU),
+    MMALevelItemData(LevelName.NOSEFERATU_BITES_BACK),
 ]
 
 __all_items_table: Sequence[MMAItemData] = [
