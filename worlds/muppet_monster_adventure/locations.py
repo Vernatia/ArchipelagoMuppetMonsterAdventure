@@ -190,6 +190,7 @@ class MMABossRegion(MMARegion):
 # and the levels tend to have a good number of recovery hearts.
 # BUT!! (and this is a big BUTT) the game does get notably harder to play this way after zone 1.
 # Playtesting is required here...
+# Note: for zone 2 onwards I have included killing enemies which block the path as a requirement.
 
 
 # All level groups share the same structure:
