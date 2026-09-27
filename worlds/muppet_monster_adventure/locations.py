@@ -125,6 +125,7 @@ class BonusLocationData(NamedTuple):
     u: list[AbilityFlag] | None
     s: list[AbilityFlag] | None
     # We may not always be able to infer the requirements for this, since it could be off the path
+    # and logic changes / new rules could make this different to just all letters combined.
     token: list[AbilityFlag] | None
 
 
@@ -339,6 +340,68 @@ level_groups: list[LevelGroup] = [
             ],
         ),
         boss=BossRegionData(LevelName.NOSEFERATU_BITES_BACK, [AbilityFlag.GLOVE]),
+    ),
+    LevelGroup(
+        identifier="GRVYARD",
+        one=LevelRegionData(
+            name=LevelName.GRAVE_MATTERS,
+            total_energy=250,
+            energy=EnergyLocationData(
+                half=[
+                    AbilityFlag.GLOVE | AbilityFlag.SPIN,
+                    AbilityFlag.GLOVE | AbilityFlag.GLIDE,
+                ],
+                full=[
+                    AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE | AbilityFlag.SWIM,
+                ],
+            ),
+            bonus=BonusLocationData(
+                b=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                o=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                n=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                u=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                s=[AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SWIM],
+                token=[AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SWIM],
+            ),
+            tokens=[
+                TokenLocationData("Rizzo", any_weapon_flag()),
+                TokenLocationData("On pillar near Rizzo", [AbilityFlag.PUSH]),
+                TokenLocationData(
+                    "Skull memory minigame",
+                    [AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SPIN],
+                ),
+                TokenLocationData(
+                    "Hidden underwater tunnel",
+                    [AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SWIM],
+                ),
+            ],
+        ),
+        two=LevelRegionData(
+            name=LevelName.MOLTEN_MAYHEM,
+            total_energy=380,
+            energy=EnergyLocationData(
+                half=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                full=[AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE | AbilityFlag.CLIMB | AbilityFlag.SMASH],
+            ),
+            bonus=BonusLocationData(
+                b=[AbilityFlag.GLOVE],
+                o=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                n=[AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SMASH],
+                u=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                s=[AbilityFlag.GLOVE | AbilityFlag.GLIDE],
+                token=[AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.SMASH],
+            ),
+            tokens=[
+                TokenLocationData("Target shooting minigame", [AbilityFlag.GLOVE]),
+                TokenLocationData("Ghost hunting", [AbilityFlag.ALL_WEAPONS | AbilityFlag.GLIDE | AbilityFlag.CLIMB]),
+                TokenLocationData("Walk along the wall", [AbilityFlag.GLOVE | AbilityFlag.GLIDE]),
+                TokenLocationData("Hidden room near start", [AbilityFlag.GLOVE | AbilityFlag.GLIDE]),
+            ],
+        ),
+        three=LevelRegionData(
+            name=LevelName.SHIVERING_TIMBER_SHOALS,
+        ),
+        boss=BossRegionData(LevelName.BEE_WARE_THE_WEREBEAR, [AbilityFlag.SPIN]),
     ),
 ]
 

@@ -26,7 +26,9 @@ class AbilityFlag(Flag):
 
 
 # Helper function to generate location rules that just require being able to kill enemies.
-def any_weapon_flag(other: AbilityFlag) -> list[AbilityFlag]:
+def any_weapon_flag(other: AbilityFlag | None = None) -> list[AbilityFlag]:
+    if other is None:
+        return [AbilityFlag.GLOVE, AbilityFlag.SPIN]
     return [
         other | AbilityFlag.GLOVE,
         other | AbilityFlag.SPIN,

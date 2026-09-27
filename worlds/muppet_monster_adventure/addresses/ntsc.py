@@ -51,7 +51,20 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.GRAVE_MATTERS: LevelPickupTable(
             tokens=[
-                PickupAddress(active=0x01F3C28, save=0x0, save_offset=0),  # Rizzo
+                PickupAddress(active=0x01F3C28, save=0x0CCD6D, save_offset=0),  # Rizzo
+                PickupAddress(active=0x01F0FDC, save=0x0CCD5A, save_offset=2),  # On pillar near Rizzo
+                PickupAddress(active=0x01F41E4, save=0x0CCD6F, save_offset=0),  # Memory minigame
+                PickupAddress(active=0x01F1008, save=0x0CCD5A, save_offset=4),  # Tunnel
+                PickupAddress(active=0x01ED850, save=0x0CCD2C, save_offset=4),  # BONUS
+            ]
+        ),
+        LevelName.GRAVE_MATTERS: LevelPickupTable(
+            tokens=[
+                PickupAddress(active=0x01FB85C, save=0x0CCDDE, save_offset=4),  # Target shooting
+                PickupAddress(active=0x01FB660, save=0x0CCDDD, save_offset=6),  # Ghost hunt
+                PickupAddress(active=0x01F6D04, save=0x0CCDC0, save_offset=0),  # Wall walk
+                PickupAddress(active=0x01F6CD8, save=0x0CCDBF, save_offset=6),  #
+                PickupAddress(active=0x01F3CBC, save=0x0CCD94, save_offset=4),  #
             ]
         ),
     },
