@@ -53,15 +53,15 @@ whitelisted_starting_levels: list[LevelName] = [
 
 
 class FillerType(StrEnum):
-    GAIN_HEALTH = "Heart"
-    GAIN_HEART = "Fly Heart"
-    GAIN_LIFE = "Extra Life"
+    GAIN_HEALTH = "Yip Yip Yip"
+    GAIN_HEART = "Delicious Cookie! Om nom nom"
+    GAIN_LIFE = "Kissy Kissy"
 
 
 class TrapType(StrEnum):
-    LOSE_HEALTH = "Ouch!"
-    LOSE_HEART = "Fly Away"
-    LOSE_LIFE = "No Life Gaming"
+    LOSE_HEALTH = "Heckled by Statler and Waldorf"
+    LOSE_HEART = "Bunsen's Failed Experiment"
+    LOSE_LIFE = "Maniacal Laugh"
 
 
 class LevelConfigurationException(Exception):
