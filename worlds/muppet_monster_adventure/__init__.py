@@ -51,11 +51,7 @@ class MuppetMonsterAdventureWorld(World):
         self.goal_locations: list[tuple[str, str]] = []
 
     def get_filler_item_name(self) -> str:
-        # IMPORTANT: Whenever you need to use a random generator, you must use world.random.
-        # This ensures that generating with the same generator seed twice yields the same output.
-        # DO NOT use a bare random object from Python's built-in random module.
-        filler = filler_items_table[World.random.randint(0, filler_items_table.count)]
-        return filler.name
+        return self.random.choice(filler_items_table).name
 
     def get_pre_fill_items(self) -> list["Item"]:
         return [self.starting_level, *self.starter_items]
