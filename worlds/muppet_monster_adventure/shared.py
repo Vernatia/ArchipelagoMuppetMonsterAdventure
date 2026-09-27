@@ -4,6 +4,14 @@ base_id: int = 25_899_560
 game_name: str = "Muppet Monster Adventure"
 
 
+class AmuletType(StrEnum):
+    NOSEFERATU_AMULET = "Noseferatu Amulet"
+    WEREBEAR_AMULET = "Werebear Amulet"
+    KER_MONSTER_AMULET = "Ker-monster Amulet"
+    MUCK_MONSTER_AMULET = "Muck Monster Amulet"
+    GHOUL_FRIEND_AMULET = "Ghoul-friend Amulet"
+
+
 # Flag because this is used for logic
 class AbilityFlag(Flag):
     GLIDE = auto()
@@ -30,7 +38,11 @@ class LevelName(StrEnum):
     PEACOCK_PURGATORY = "Peacock Purgatory"
     HALLWAYS_OF_DOOM = "Hallways of Doom"
     POKER_FACES = "Poker Faces"
-    NOSEFERATU = "Noseferatu"
+    NOSEFERATU_BITES_BACK = "Noseferatu Bites Back!"
+    GRAVE_MATTERS = "Grave Matters"
+    MOLTEN_MAYHEM = "Molten Mayhem"
+    SHIVERING_TIMBER_SHOALS = "Shivering Timber Shoals"
+    BEE_WARE_THE_WEREBEAR = "Bee-ware the WereBear!"
 
 
 whitelisted_starting_levels: list[LevelName] = [

@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from math import ceil, floor
-from typing import TYPE_CHECKING, ClassVar, Sequence
+from typing import TYPE_CHECKING, ClassVar
 
 from .addresses.ntsc import ntsc_addresses
 from .addresses.structs import AddressTable, LevelPickupTable
@@ -328,7 +329,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.player: MMAPlayerState = MMAPlayerState(address_table)
         self.bosses_beaten: list[bool] = [False] * 5
         self.level_states: dict[str, MMALevelState] = {
-            region.game_identifier: MMALevelState(
+            region.ingame_identifier: MMALevelState(
                 self.address_table,
                 region,
                 address_table.level_state + (i * MMALevelState.level_state_total_size),

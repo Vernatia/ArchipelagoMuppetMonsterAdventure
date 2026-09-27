@@ -49,5 +49,10 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01F3724, save=0x0CCC5D, save_offset=4),  # BONUS
             ]
         ),
+        LevelName.GRAVE_MATTERS: LevelPickupTable(
+            tokens=[
+                PickupAddress(active=0x01F3C28, save=0x0, save_offset=0),  # Rizzo
+            ]
+        ),
     },
 )
