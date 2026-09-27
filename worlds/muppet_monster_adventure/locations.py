@@ -191,6 +191,11 @@ class MMABossRegion(MMARegion):
 # Playtesting is required here...
 
 
+# All level groups share the same structure:
+# - Always three levels and then a boss
+# - All levels start with the same prefix
+# - Regular levels have the suffix of their (1-based) relative level number
+# - Boss levels are suffixed by the letter B
 class LevelGroup:
     def __init__(
         self,
