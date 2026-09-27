@@ -44,7 +44,7 @@ class MMABossLocationData(MMALocationData):
         self,
         ability_requirements: list[AbilityFlag] | None = None,
     ):
-        super().__init__(LocationType.BOSS, "Boss defeated", ability_requirements)
+        super().__init__(LocationType.BOSS, LocationType.BOSS.value, ability_requirements)
 
 
 class EnergyAmount(StrEnum):
