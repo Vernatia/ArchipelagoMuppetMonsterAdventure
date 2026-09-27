@@ -171,9 +171,9 @@ class MMABossRegion(MMARegion):
         self,
         name: LevelName,
         ingame_identifier: str,
-        locations: list[MMALocationData],
+        completion_requirements: list[AbilityFlag] | None,
     ) -> None:
-        super().__init__(name, ingame_identifier, 0, locations)
+        super().__init__(name, ingame_identifier, 0, [MMABossLocationData(completion_requirements)])
 
 
 # TODO: currently we're assuming checks can be done without caring about taking damage
@@ -302,7 +302,7 @@ all_locations_table: list[MMARegion] = [
     MMABossRegion(
         LevelName.NOSEFERATU_BITES_BACK,
         "CASTLEB",
-        [MMABossLocationData([AbilityFlag.GLOVE])],
+        [AbilityFlag.GLOVE],
     ),
     MMARegion(
         LevelName.GRAVE_MATTERS,
@@ -325,7 +325,7 @@ all_locations_table: list[MMARegion] = [
     MMABossRegion(
         LevelName.BEE_WARE_THE_WEREBEAR,
         "GRVYARDB",
-        [MMABossLocationData([AbilityFlag.SPIN])],
+        [AbilityFlag.SPIN],
     ),
 ]
 
