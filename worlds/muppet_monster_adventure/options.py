@@ -4,7 +4,7 @@ from Options import OptionCounter, OptionSet, PerGameCommonOptions, Range, Toggl
 from worlds.muppet_monster_adventure.items import filler_items_table, trap_items_table
 
 
-class EnergyLocations(OptionSet):
+class EnergyLocations(OptionCounter):
     """Toggle individual Evil Energy check thresholds."""
 
     display_name = "Evil Energy Thresholds"
