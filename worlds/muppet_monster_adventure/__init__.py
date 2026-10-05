@@ -1,6 +1,6 @@
-from typing import cast, Any, Dict
+from typing import Any, Dict, cast
 
-from BaseClasses import Item, Location, MultiWorld, Region, ItemClassification
+from BaseClasses import Item, ItemClassification, Location, MultiWorld, Region
 from rule_builder import rules
 from worlds.AutoWorld import World
 
@@ -23,6 +23,7 @@ from .locations import (
     location_name_to_id,
     location_type_lookup,
 )
+from .options import MMAOptions
 from .shared import HUB_LEVEL, AbilityFlag, game_name, whitelisted_starting_levels
 
 
@@ -44,6 +45,8 @@ class MuppetMonsterAdventureWorld(World):
     location_name_to_id = location_name_to_id
     location_name_groups = location_name_groups
 
+    options_dataclass = MMAOptions
+    options: MMAOptions  # pyright: ignore[reportIncompatibleVariableOverride]
     origin_region_name = HUB_LEVEL
 
     def __init__(self, multiworld: MultiWorld, player: int):
@@ -82,20 +85,20 @@ class MuppetMonsterAdventureWorld(World):
             regions.append(region)
         self.multiworld.regions.extend(regions)
         return
-    
+
     def create_item(self, name: str) -> "MMAItem":
         item_id: int = self.item_name_to_id[name]
         item = item_id_to_item[item_id]
 
         return MMAItem(item.name, item.classification, None, self.player)
-        
+
     def create_event(self, event: str):
         return MMAItem(event, ItemClassification.progression, None, self.player)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         slot_data: Dict[str, Any] = {
-            "start_location" : self.starting_level.name,
-            #"death_link": self.options.death_link.value
+            "start_location": self.starting_level.name,
+            # "death_link": self.options.death_link.value
         }
         return slot_data
 
