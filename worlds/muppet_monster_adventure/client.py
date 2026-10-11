@@ -677,7 +677,7 @@ class MMAClient(BizHawkClient):
             self.reset_state()
             return
 
-        # Force setting the cheat locations to 0 to disable them from functioning
+        # Force (every frame) setting the cheat locations to 0 to disable them from functioning
         await bizhawk.write(
             ctx.bizhawk_ctx,
             [
