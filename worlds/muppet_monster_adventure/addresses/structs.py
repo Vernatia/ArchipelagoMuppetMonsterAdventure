@@ -24,12 +24,13 @@ class LevelPickupTable(NamedTuple):
 
 
 class AddressTable(NamedTuple):
-    """The physics/timer seems to be different to the game timer (60fps for NTSC, 50 for PAL)"""
-    game_timer_frames: int
 
     """A look-up table for all the memory addresses.
     Various parts of what we use are split across sections of memory which differ across versions.
     I felt this was cleaner than doing some shenannigans like `offset if in dynamic memory else other_offset`."""
+
+    game_timer_frames: int
+    """This is Frames, not a Memory Address - The physics/timer seems to be different to the game timer (60fps for NTSC, 50 for PAL)"""
 
     game_identifier: int
     """Standard PSX game identifier (SLUS_XXX.XX)"""
