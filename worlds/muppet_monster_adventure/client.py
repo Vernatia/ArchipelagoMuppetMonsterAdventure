@@ -79,13 +79,13 @@ class MMAMorphState:
 
 
 class MMALevelState(MMAAddressTableConsumer):
-    level_state_total_size: int = 104
+    level_state_total_size: int = 105
     level_state_relevant_size: int = 6
     last_pickup_size: int = 3
     token_active_offset: int = 3  # Num bytes after address where active flag is stored
 
     bonus_offset: int = 0
-    energy_offset: int = 2
+    energy_offset: int = 3
     energy_size: int = 2
 
     def __init__(
