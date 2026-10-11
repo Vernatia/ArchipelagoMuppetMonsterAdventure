@@ -595,7 +595,7 @@ class MMAClient(BizHawkClient):
 
     def reset_state(self, level_name: str | None = None) -> None:
         # TODO: options
-        self.state = MMAGameState(self.address_table, 5, [0.5, 1.0])
+        self.state = MMAGameState(self.address_table, 6, [0.5, 1.0])
         if level_name is not None:
             self.state.active_level_name = level_name
 
