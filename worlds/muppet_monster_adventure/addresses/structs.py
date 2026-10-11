@@ -28,6 +28,10 @@ class AddressTable(NamedTuple):
     Various parts of what we use are split across sections of memory which differ across versions.
     I felt this was cleaner than doing some shenannigans like `offset if in dynamic memory else other_offset`."""
 
+    # This is number of Frames per second, not a Memory Address
+    game_timer_frames: int
+    """The physics/timer seems to be different to the game timer (60fps for NTSC, 50fps for PAL)"""
+
     game_identifier: int
     """Standard PSX game identifier (SLUS_XXX.XX)"""
 
@@ -79,5 +83,19 @@ class AddressTable(NamedTuple):
     last_pickup: int
     """Stores the memory address of the last pickup"""
 
+    chicken_timer: int
+    """Timer for the Chicken Gun (4 bytes) - signed"""
+
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
+
+    # Location of cheat pieces in the menu, these need to be cleared every frame    
+    cheat_menu_level_select: int
+    """Makes a new option appear in the opening menu"""
+
+    cheat_permanent_level_unlock: int
+    """Makes all levels permanently unlocked"""
+
+    cheat_permanent_morph_unlock: int
+    """Doesn't seem to work, but is implied to make all Morphs permanently unlocked"""
+

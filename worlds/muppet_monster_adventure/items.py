@@ -56,12 +56,18 @@ filler_items_table: list[MMAFillerItemData] = [
     MMAFillerItemData(FillerType.GAIN_HEALTH),
     MMAFillerItemData(FillerType.GAIN_HEART),
     MMAFillerItemData(FillerType.GAIN_LIFE),
+    MMAFillerItemData(FillerType.CHICKEN_TIME_1_MIN),
+    MMAFillerItemData(FillerType.CHICKEN_TIME_2_MIN),
+    MMAFillerItemData(FillerType.CHICKEN_TIME_5_MIN),
 ]
 
 trap_items_table: list[MMATrapItemData] = [
     MMATrapItemData(TrapType.LOSE_HEALTH),
     MMATrapItemData(TrapType.LOSE_HEART),
     MMATrapItemData(TrapType.LOSE_LIFE),
+    MMATrapItemData(TrapType.CHICKEN_TIME_1_SEC),
+    MMATrapItemData(TrapType.CHICKEN_TIME_2_SEC),
+    MMATrapItemData(TrapType.CHICKEN_TIME_5_SEC),
 ]
 
 level_items_table: list[MMALevelItemData] = [MMALevelItemData(level) for level in LevelName]
