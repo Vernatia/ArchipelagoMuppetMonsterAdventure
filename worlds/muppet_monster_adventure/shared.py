@@ -41,8 +41,12 @@ def flag_variants(shared_reqs: AbilityFlag, *other: AbilityFlag) -> list[Ability
     return [shared_reqs | other_item for other_item in args]
 
 
+# Hub is not a level to unlock, and should not be included in the below enum.
+HUB_LEVEL = "Hub"
+
+
+# An enum of unlockable/playable levels.
 class LevelName(StrEnum):
-    HUB = "Hub"
     PEACOCK_PURGATORY = "Peacock Purgatory"
     HALLWAYS_OF_DOOM = "Hallways of Doom"
     POKER_FACES = "Poker Faces"
