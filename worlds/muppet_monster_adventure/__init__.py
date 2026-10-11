@@ -23,7 +23,7 @@ from .locations import (
     location_name_to_id,
     location_type_lookup,
 )
-from .shared import AbilityFlag, LevelName, game_name, whitelisted_starting_levels
+from .shared import HUB_LEVEL, AbilityFlag, game_name, whitelisted_starting_levels
 
 
 class MMAItem(Item):
@@ -44,7 +44,7 @@ class MuppetMonsterAdventureWorld(World):
     location_name_to_id = location_name_to_id
     location_name_groups = location_name_groups
 
-    origin_region_name = LevelName.HUB.value
+    origin_region_name = HUB_LEVEL
 
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
@@ -68,7 +68,7 @@ class MuppetMonsterAdventureWorld(World):
         super().create_regions()
 
         # Hub always required as it's the starting level.
-        hub_region = Region(LevelName.HUB.value, self.player, self.multiworld)
+        hub_region = Region(HUB_LEVEL, self.player, self.multiworld)
         self.multiworld.regions.append(hub_region)
 
         regions: list[Region] = []
@@ -88,6 +88,7 @@ class MuppetMonsterAdventureWorld(World):
 
         pool: list[Item] = []
         starter_level_name = self.random.choice(whitelisted_starting_levels)
+        print(f"starter level: {starter_level_name}\n")
         for item_def in required_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
             if type(item_def) is not MMALevelItemData:
@@ -143,7 +144,7 @@ class MuppetMonsterAdventureWorld(World):
     def set_rules(self) -> None:
         super().set_rules()
 
-        hub_region = self.get_region(LevelName.HUB.value)
+        hub_region = self.get_region(HUB_LEVEL)
         for region_def in all_locations_table:
             region = self.get_region(region_def.name)
             # Hub can access all regions (when they are unlocked).
