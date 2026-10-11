@@ -677,14 +677,14 @@ class MMAClient(BizHawkClient):
             self.reset_state()
             return
 
-        #await bizhawk.write(
-        #    ctx.bizhawk_ctx,
-        #    [
-        #        (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
-        #        (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-        #        (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-        #    ]
-        #)
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [
+                (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
+                (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+                (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+            ]
+        )
 
         level_name = await self.get_level_name(ctx)
         if level_name != self.state.active_level_name:
