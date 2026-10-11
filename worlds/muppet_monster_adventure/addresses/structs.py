@@ -24,6 +24,9 @@ class LevelPickupTable(NamedTuple):
 
 
 class AddressTable(NamedTuple):
+    """The physics/timer seems to be different to the game timer (60fps for NTSC, 50 for PAL)"""
+    game_timer_frames: int
+
     """A look-up table for all the memory addresses.
     Various parts of what we use are split across sections of memory which differ across versions.
     I felt this was cleaner than doing some shenannigans like `offset if in dynamic memory else other_offset`."""
@@ -79,5 +82,19 @@ class AddressTable(NamedTuple):
     last_pickup: int
     """Stores the memory address of the last pickup"""
 
+    chicken_timer: int
+    """Timer for the Chicken Gun (4 bytes) - signed"""
+
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
+
+    """Location of cheat pieces in the menu, these need to be cleared every frame"""
+    cheat_menu_level_select: int
+    """Makes a new option appear in the opening menu"""
+
+    cheat_permanent_level_unlock: int
+    """Makes all levels permanently unlocked"""
+
+    cheat_permanent_morph_unlock: int
+    """Doesn't seem to work, but is implied to make all Morphs permanently unlocked"""
+

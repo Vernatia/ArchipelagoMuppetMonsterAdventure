@@ -81,12 +81,18 @@ class FillerType(StrEnum):
     GAIN_HEALTH = "Yip Yip Yip"
     GAIN_HEART = "Delicious Cookie! Om nom nom"
     GAIN_LIFE = "Kissy Kissy"
+    CHICKEN_TIME_1_MIN = "Ethel's Rifle"
+    CHICKEN_TIME_2_MIN = "Stephanie's Shotgun"
+    CHICKEN_TIME_5_MIN = "Camilla's Cannon"
 
 
 class TrapType(StrEnum):
     LOSE_HEALTH = "Heckled by Statler and Waldorf"
     LOSE_HEART = "Bunsen's Failed Experiment"
     LOSE_LIFE = "Maniacal Laugh"
+    CHICKEN_TIME_1_SEC = "Cooked Chook"
+    CHICKEN_TIME_2_SEC = "Shaken Tailfeather"
+    CHICKEN_TIME_5_SEC = "Fowl Words"
 
 
 class LevelConfigurationException(Exception):
