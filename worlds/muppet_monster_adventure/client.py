@@ -322,10 +322,15 @@ class MMAPlayerState(MMAAddressTableConsumer):
         data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.address_table.max_health, 1, "MainRAM")]))[0]
         max_health = data[0]
 
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, max_health.to_bytes(1, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [(self.address_table.current_health, max_health.to_bytes(1, "little", signed=True), "MainRAM")],
+        )
 
     async def zero_health(self, ctx: "BizHawkClientContext"):
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, (0).to_bytes(1, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx, [(self.address_table.current_health, (0).to_bytes(1, "little", signed=True), "MainRAM")]
+        )
 
     async def change_current_lives(self, increase: bool, ctx: "BizHawkClientContext"):
         # Grab the current health and the max health
@@ -408,6 +413,8 @@ class MMAGameState(MMAAddressTableConsumer):
                 [
                     (self.address_table.level_unlock_states, write_list, "MainRAM"),
                     (self.address_table.zone_unlocked_count, [5], "MainRAM"),
+                    # Technically don't need to set this every frame, but it's fine...
+                    (self.address_table.hub_autospin, (0).to_bytes(length=4, byteorder="little"), "MainRAM"),
                 ],
             )
         else:
