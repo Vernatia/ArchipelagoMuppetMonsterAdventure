@@ -252,42 +252,8 @@ class MMAPlayerState(MMAAddressTableConsumer):
         return morphs | (self.glove << MMAMorphState.packed_size) | (self.spin << MMAMorphState.packed_size + 1)
 
     async def write_flags(self, ctx: "BizHawkClientContext") -> None:
-        # TODO: make list instead
-        if not self.spin and not self.glove:
-            # Both of these need to be frozen.
-            # The glove's value doesn't really matter.
-            await bizhawk.write(
-                ctx.bizhawk_ctx,
-                [
-                    (self.address_table.power_glove, [0], "MainRAM"),
-                    (self.address_table.spin_attack, [0], "MainRAM"),
-                    (self.address_table.morphs, self.morphs.get_bytes(), "MainRAM"),
-                ],
-            )
-        elif not self.spin:
-            await bizhawk.write(
-                ctx.bizhawk_ctx,
-                [
-                    (self.address_table.spin_attack, [0], "MainRAM"),
-                    (self.address_table.morphs, self.morphs.get_bytes(), "MainRAM"),
-                ],
-            )
-        elif not self.glove:
-            await bizhawk.write(
-                ctx.bizhawk_ctx,
-                [
-                    (self.address_table.power_glove, [0], "MainRAM"),
-                    (self.address_table.morphs, self.morphs.get_bytes(), "MainRAM"),
-                ],
-            )
-            # Spin only needs to be written to if it's zero
-            _ = await bizhawk.guarded_write(
-                ctx.bizhawk_ctx,
-                [(self.address_table.spin_attack, [1], "MainRAM")],
-                [(self.address_table.spin_attack, [0], "MainRAM")],
-            )
-        else:
-            await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.morphs, self.morphs.get_bytes(), "MainRAM")])
+        # TODO: re-add glove and spin once we find the correct implementation
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.morphs, self.morphs.get_bytes(), "MainRAM")])
 
     async def change_current_health(self, increase: bool, ctx: "BizHawkClientContext"):
         # Grab the current health and the max health
