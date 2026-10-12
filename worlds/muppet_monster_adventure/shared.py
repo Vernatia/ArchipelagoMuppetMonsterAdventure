@@ -88,6 +88,7 @@ class FillerType(StrEnum):
     CHICKEN_TIME_1_MIN = "Ethel's Rifle"
     CHICKEN_TIME_2_MIN = "Stephanie's Shotgun"
     CHICKEN_TIME_5_MIN = "Camilla's Cannon"
+    FULL_HEAL = "Hoobygoop Covered Hoobybun"
 
 
 class TrapType(StrEnum):
@@ -97,6 +98,7 @@ class TrapType(StrEnum):
     CHICKEN_TIME_1_SEC = "Cooked Chook"
     CHICKEN_TIME_2_SEC = "Shaken Tailfeather"
     CHICKEN_TIME_5_SEC = "Fowl Words"
+    ONE_HIT_KO = "One Hit K/O"
 
 
 class LevelConfigurationException(Exception):

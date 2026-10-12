@@ -59,6 +59,7 @@ filler_items_table: list[MMAFillerItemData] = [
     MMAFillerItemData(FillerType.CHICKEN_TIME_1_MIN),
     MMAFillerItemData(FillerType.CHICKEN_TIME_2_MIN),
     MMAFillerItemData(FillerType.CHICKEN_TIME_5_MIN),
+    MMAFillerItemData(FillerType.FULL_HEAL),
 ]
 
 trap_items_table: list[MMATrapItemData] = [
@@ -68,6 +69,7 @@ trap_items_table: list[MMATrapItemData] = [
     MMATrapItemData(TrapType.CHICKEN_TIME_1_SEC),
     MMATrapItemData(TrapType.CHICKEN_TIME_2_SEC),
     MMATrapItemData(TrapType.CHICKEN_TIME_5_SEC),
+    MMATrapItemData(TrapType.ONE_HIT_KO),
 ]
 
 level_items_table: list[MMALevelItemData] = [MMALevelItemData(level) for level in LevelName]
