@@ -137,7 +137,7 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01F4EBC, save=0x0CD099, save_offset=6),  # Near BONUS O
                 PickupAddress(active=0x01F97C4, save=0x0CD0B5, save_offset=6),  # Ghost
                 PickupAddress(active=0x01F4F14, save=0x0CD09A, save_offset=2),  # Scarecrow
-                PickupAddress(active=0x01F4F14, save=0x0CD09A, save_offset=0),  # Barrel
+                PickupAddress(active=0x01F4EE8, save=0x0CD09A, save_offset=0),  # Barrel
                 PickupAddress(active=0x01F9F30, save=0x0CD0B8, save_offset=2),  # Smashing
                 PickupAddress(active=0x01F1E00, save=0x0CD06C, save_offset=4),  # BONUS
             ]
