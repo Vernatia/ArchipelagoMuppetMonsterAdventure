@@ -79,13 +79,13 @@ class MMAMorphState:
 
 
 class MMALevelState(MMAAddressTableConsumer):
-    level_state_total_size: int = 105
+    level_state_total_size: int = 104
     level_state_relevant_size: int = 6
     last_pickup_size: int = 3
     token_active_offset: int = 3  # Num bytes after address where active flag is stored
 
     bonus_offset: int = 0
-    energy_offset: int = 3
+    energy_offset: int = 4
     energy_size: int = 2
 
     def __init__(
@@ -141,7 +141,9 @@ class MMALevelState(MMAAddressTableConsumer):
 
         bonus_changes = self.bonus.check(state_data[self.bonus_offset])  # Single byte order doesn't matter
         updated_energy = int.from_bytes(
-            state_data[self.energy_offset : self.energy_offset + self.energy_size], byteorder="little"
+            state_data[self.energy_offset : self.energy_offset + self.energy_size],
+            byteorder="little",
+            signed=False,
         )
 
         collected_locations: list[int] = []
@@ -153,6 +155,7 @@ class MMALevelState(MMAAddressTableConsumer):
             self.energy = updated_energy
             if self.current_energy_threshold + 1 < len(self.energy_thresholds):
                 energy_location_lookup = self.location_lookup[LocationType.ENERGY]
+
                 for i in range(self.current_energy_threshold + 1, len(self.energy_thresholds)):
                     # Floor to ensure there's no weird edge-cases with the floats
                     target = floor(self.energy_thresholds[i] * self.max_energy)
@@ -278,7 +281,10 @@ class MMAPlayerState(MMAAddressTableConsumer):
             new_health = current_health + 1 if current_health < max_health else max_health
         else:
             new_health = current_health - 1 if current_health > 0 else 0
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, new_health.to_bytes(1, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [(self.address_table.current_health, new_health.to_bytes(1, "little", signed=True), "MainRAM")],
+        )
 
     async def change_max_health(self, increase: bool, ctx: "BizHawkClientContext"):
         # Grab the max health
@@ -291,11 +297,17 @@ class MMAPlayerState(MMAAddressTableConsumer):
         else:
             new_max_health = max_health - 1 if max_health > 0 else 0
 
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.max_health, new_max_health.to_bytes(1, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [(self.address_table.max_health, new_max_health.to_bytes(1, "little", signed=True), "MainRAM")],
+        )
 
         # Ensure the current health cannot be above the max health
         if current_health > new_max_health:
-            await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, new_max_health.to_bytes(1, "little", signed=True), "MainRAM")])
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(self.address_table.current_health, new_max_health.to_bytes(1, "little", signed=True), "MainRAM")],
+            )
 
     async def full_heal(self, ctx: "BizHawkClientContext"):
         # Grab the max health
@@ -316,11 +328,17 @@ class MMAPlayerState(MMAAddressTableConsumer):
             new_lives = current_lives + 1 if current_lives < self.max_limit else self.max_limit
         else:
             new_lives = current_lives - 1 if current_lives > 0 else 0
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_lives, new_lives.to_bytes(1, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [(self.address_table.current_lives, new_lives.to_bytes(1, "little", signed=True), "MainRAM")],
+        )
 
     async def change_chicken_gun_timer(self, seconds: int, ctx: "BizHawkClientContext"):
         new_seconds = seconds * self.address_table.game_timer_frames
-        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.chicken_timer, new_seconds.to_bytes(4, "little", signed=True), "MainRAM")])
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [(self.address_table.chicken_timer, new_seconds.to_bytes(4, "little", signed=True), "MainRAM")],
+        )
 
 
 class MMAGameState(MMAAddressTableConsumer):
@@ -707,7 +725,7 @@ class MMAClient(BizHawkClient):
                     (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
                     (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
                     (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-                ]
+                ],
             )
 
         # TODO: probably others
