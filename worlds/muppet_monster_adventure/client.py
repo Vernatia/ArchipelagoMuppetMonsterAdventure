@@ -309,6 +309,16 @@ class MMAPlayerState(MMAAddressTableConsumer):
                 [(self.address_table.current_health, new_max_health.to_bytes(1, "little", signed=True), "MainRAM")],
             )
 
+    async def full_heal(self, ctx: "BizHawkClientContext"):
+        # Grab the max health
+        data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.address_table.max_health, 1, "MainRAM")]))[0]
+        max_health = data[0]
+
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, max_health.to_bytes(1, "little", signed=True), "MainRAM")])
+
+    async def zero_health(self, ctx: "BizHawkClientContext"):
+        await bizhawk.write(ctx.bizhawk_ctx, [(self.address_table.current_health, (0).to_bytes(1, "little", signed=True), "MainRAM")])
+
     async def change_current_lives(self, increase: bool, ctx: "BizHawkClientContext"):
         # Grab the current health and the max health
         data = (await bizhawk.read(ctx.bizhawk_ctx, [(self.address_table.current_lives, 1, "MainRAM")]))[0]
@@ -449,6 +459,9 @@ class MMAGameState(MMAAddressTableConsumer):
                             seconds = 5 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
                             pass
+                        case FillerType.FULL_HEAL:
+                            await self.player.full_heal(ctx)
+                            pass
                         case _:
                             pass
                 case MMATrapItemData():
@@ -473,6 +486,9 @@ class MMAGameState(MMAAddressTableConsumer):
                         case TrapType.CHICKEN_TIME_5_SEC:
                             seconds = 5
                             await self.player.change_chicken_gun_timer(seconds, ctx)
+                            pass
+                        case TrapType.ONE_HIT_KO:
+                            await self.player.zero_health(ctx)
                             pass
                         case _:
                             pass
@@ -695,21 +711,22 @@ class MMAClient(BizHawkClient):
             self.reset_state()
             return
 
-        # Force (every frame) setting the cheat locations to 0 to disable them from functioning
-        await bizhawk.write(
-            ctx.bizhawk_ctx,
-            [
-                (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
-                (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-                (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-            ],
-        )
-
         level_name = await self.get_level_name(ctx)
         if level_name != self.state.active_level_name:
             # TODO: emit events for trackers and stuff
             self.state.active_level_name = level_name
             logger.info(f"Level changed to '{self.state.active_level_name}'")
+
+        if self.state.active_level_name == "FRONT1":
+            # Force (every frame) setting the cheat locations to 0 to disable them from functioning
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [
+                    (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
+                    (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+                    (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+                ],
+            )
 
         # TODO: probably others
         if (
