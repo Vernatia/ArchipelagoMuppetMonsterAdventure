@@ -4,7 +4,6 @@ from .structs import AddressTable, LevelPickupTable, PickupAddress
 ntsc_addresses = AddressTable(
     # This is the number of frames the physics/timer engine runs (for the chicken timer and more?)
     game_timer_frames=30,
-
     # Address locations of the things in the menu
     game_identifier=0x009274,
     loading_state=0x00EAB9,
@@ -26,12 +25,25 @@ ntsc_addresses = AddressTable(
     level_state=0x0CCB86,
     last_pickup=0x0B8698,
     chicken_timer=0x0B7F20,
-
     # Cheat locations in the memory
     cheat_menu_level_select=0x0AF184,
     cheat_permanent_level_unlock=0x0AF0F8,
     cheat_permanent_morph_unlock=0x0AF034,
-
+    # Always access Hub custom cheat
+    always_access_hub=[
+        0x060FBC,
+        0x060FBE,
+        0x060FC2,
+        0x060FC4,
+        0x060FA8,
+        0x060FC6,
+        0x060E94,
+        0x060E96,
+        0x060E9A,
+        0x060E9C,
+        0x060E80,
+        0x060E9E,
+    ],
     # Location of any checks in the game, per level
     level_pickup_data={
         LevelName.PEACOCK_PURGATORY: LevelPickupTable(

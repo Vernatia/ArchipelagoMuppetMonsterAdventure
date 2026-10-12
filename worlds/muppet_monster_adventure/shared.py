@@ -104,3 +104,10 @@ class LevelConfigurationException(Exception):
 
     def __init__(self, name: LevelName, message: str):
         super().__init__(f"Level '{name}' has been configured incorrectly: {message}")
+
+
+class MemoryConfigurationException(Exception):
+    """Exception raised when memory has been misconfigured."""
+
+    def __init__(self, item_name: str, message: str):
+        super().__init__(f"Memory address table item '{item_name}' has been configured incorrectly: {message}")

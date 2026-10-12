@@ -23,7 +23,15 @@ from .locations import (
     non_boss_region_lookup,
     region_lookup,
 )
-from .shared import AbilityFlag, FillerType, LevelConfigurationException, LevelName, TrapType, game_name
+from .shared import (
+    AbilityFlag,
+    FillerType,
+    LevelConfigurationException,
+    LevelName,
+    MemoryConfigurationException,
+    TrapType,
+    game_name,
+)
 
 
 class MMAAddressTableConsumer:
@@ -630,6 +638,21 @@ class MMAClient(BizHawkClient):
         # "SCES_024.03": pal_addresses,
     }
 
+    hub_cheat_values: ClassVar[list[int]] = [
+        0x0100,
+        0x3484,
+        0x1000,
+        0x0008,
+        0x1021,
+        0xAC64,
+        0x0100,
+        0x3484,
+        0x1000,
+        0x0008,
+        0x1021,
+        0xAC64,
+    ]
+
     def __init__(self):
         super().__init__()
 
@@ -709,7 +732,6 @@ class MMAClient(BizHawkClient):
         if level_name != self.state.active_level_name:
             # TODO: emit events for trackers and stuff
             self.state.active_level_name = level_name
-            logger.info(f"Level changed to '{self.state.active_level_name}'")
 
         # TODO: probably others
         if (
@@ -729,6 +751,7 @@ class MMAClient(BizHawkClient):
         if not self.was_save_loaded:
             await self.state.initialize(ctx)
             self.was_save_loaded = True
+            await self.write_one_time_flags(ctx)
 
         if not await self.state.try_write_flags(ctx):
             # Game is loaded correctly, but is not in a state to write anything.
@@ -754,3 +777,19 @@ class MMAClient(BizHawkClient):
                 break
             level_str += chr(b)
         return level_str
+
+    async def write_one_time_flags(self, ctx: "BizHawkClientContext") -> None:
+        item_len = len(self.address_table.always_access_hub)
+        if item_len != 12:
+            raise MemoryConfigurationException("always_access_hub", f"expected length of 12 but got {item_len}")
+        await bizhawk.write(
+            ctx.bizhawk_ctx,
+            [
+                (
+                    self.address_table.always_access_hub[index],
+                    (self.hub_cheat_values[index]).to_bytes(2, "little"),
+                    "MainRAM",
+                )
+                for index in range(item_len)
+            ],
+        )

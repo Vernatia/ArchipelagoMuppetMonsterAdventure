@@ -89,7 +89,7 @@ class AddressTable(NamedTuple):
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
 
-    # Location of cheat pieces in the menu, these need to be cleared every frame    
+    # Location of cheat pieces in the menu, these need to be cleared every frame
     cheat_menu_level_select: int
     """Makes a new option appear in the opening menu"""
 
@@ -99,3 +99,5 @@ class AddressTable(NamedTuple):
     cheat_permanent_morph_unlock: int
     """Doesn't seem to work, but is implied to make all Morphs permanently unlocked"""
 
+    always_access_hub: list[int]
+    """Memory locations of instructions to edit which allows the player to always access the Hub"""
