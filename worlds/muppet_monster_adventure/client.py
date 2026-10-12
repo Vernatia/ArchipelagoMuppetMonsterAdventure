@@ -127,8 +127,6 @@ class MMALevelState(MMAAddressTableConsumer):
     # It should include a param indicating whether this is the active level, since persisted level
     # data is only updated when the player returns to the Hub.
     async def get_checked_locations(self, ctx: "BizHawkClientContext") -> list[int]:
-        from CommonClient import logger
-
         # TODO: technically we could do visit-sanity if we wanted, since the game tracks it.
         # Would need to adjust all of this though, since it's 2 bytes prior to the Bonus.
         data = await bizhawk.read(
@@ -140,7 +138,6 @@ class MMALevelState(MMAAddressTableConsumer):
         )
         state_data = data[0]
         last_pickup = int.from_bytes(data[1], byteorder="little")
-        # logger.info(f"reading from {hex(self.state_address)}")
 
         bonus_changes = self.bonus.check(state_data[self.bonus_offset])  # Single byte order doesn't matter
         updated_energy = int.from_bytes(
@@ -155,9 +152,6 @@ class MMALevelState(MMAAddressTableConsumer):
             collected_locations.extend([bonus_location_lookup[idx].ap_id() for idx in bonus_changes])
 
         if updated_energy > self.energy:
-            logger.info(f"energy updated {hex(updated_energy)}")
-            for b in state_data:
-                logger.info(f"{hex(b)}")
             self.energy = updated_energy
             if self.current_energy_threshold + 1 < len(self.energy_thresholds):
                 energy_location_lookup = self.location_lookup[LocationType.ENERGY]
@@ -165,7 +159,6 @@ class MMALevelState(MMAAddressTableConsumer):
                 for i in range(self.current_energy_threshold + 1, len(self.energy_thresholds)):
                     # Floor to ensure there's no weird edge-cases with the floats
                     target = floor(self.energy_thresholds[i] * self.max_energy)
-                    logger.info(f"target {target} energy {self.energy}")
                     if self.energy >= target:
                         collected_locations.append(energy_location_lookup[i].ap_id())
                         self.current_energy_threshold = i
