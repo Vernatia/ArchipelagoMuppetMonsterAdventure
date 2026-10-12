@@ -108,7 +108,7 @@ class MuppetMonsterAdventureWorld(World):
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
 
-        trap_count = floor(diff / 2)
+        trap_count = round(diff / 10)
         if diff > 0:
             for _ in range(diff - trap_count):
                 item_def = self.random.choice(filler_items_table)
