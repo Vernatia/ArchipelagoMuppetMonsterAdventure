@@ -101,3 +101,6 @@ class AddressTable(NamedTuple):
 
     always_access_hub: list[int]
     """Memory locations of instructions to edit which allows the player to always access the Hub"""
+
+    hub_autospin: int
+    """Memory address of the instruction which triggers the auto-spin in the Hub when you select a locked level"""

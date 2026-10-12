@@ -44,6 +44,8 @@ ntsc_addresses = AddressTable(
         0x060E80,
         0x060E9E,
     ],
+    # Fix for level 1 breaking when you select it while locked
+    hub_autospin=0x0E0C64,
     # Location of any checks in the game, per level
     level_pickup_data={
         LevelName.PEACOCK_PURGATORY: LevelPickupTable(
