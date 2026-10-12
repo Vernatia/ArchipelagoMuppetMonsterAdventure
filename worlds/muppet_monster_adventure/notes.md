@@ -6,4 +6,5 @@
 # Speedrun tech?
 
 - Spinning in air before morphing into glide removes the stall.
-- While swimming, doing a small hop and then spinning seems to be faster than regular swimming speed (you get a speed boost when entering water while spinning).
+- Doing a spin in the air before entering water gives you a speed boost.
+    - It doesn't appear to be faster to continue doing this while swimming (you would need to jump and spin, which stalls you momentarily)
