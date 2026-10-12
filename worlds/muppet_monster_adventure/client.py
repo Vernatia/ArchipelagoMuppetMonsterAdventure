@@ -15,12 +15,12 @@ from worlds._bizhawk.client import BizHawkClient
 from .items import MMAAbilityItemData, MMAFillerItemData, MMALevelItemData, MMATrapItemData, item_id_to_item
 from .locations import (
     LocationType,
+    MMABossRegion,
     MMALocationData,
     MMARegion,
     location_name_to_id,
     location_type_lookup,
     location_type_lookup_by_region,
-    non_boss_region_lookup,
     region_lookup,
 )
 from .shared import (
@@ -102,6 +102,7 @@ class MMALevelState(MMAAddressTableConsumer):
         region: MMARegion,
         state_address: int,
         energy_thresholds: list[float],
+        is_boss_level: bool,
     ) -> None:
         super().__init__(address_table)
         self.region: MMARegion = region
@@ -111,7 +112,10 @@ class MMALevelState(MMAAddressTableConsumer):
         self.location_lookup: dict[LocationType, list[MMALocationData]] = location_type_lookup_by_region[
             self.region.name
         ]
-        self.pickup_table: LevelPickupTable = self.address_table.level_pickup_data[LevelName(self.region.name)]
+        # For our use-case, we can just ignore the boss level information (unless we find something useful)
+        self.pickup_table: LevelPickupTable | None = (
+            self.address_table.level_pickup_data[LevelName(self.region.name)] if not is_boss_level else None
+        )
 
         # State
         self.bonus: MMAFlagField = MMAFlagField(size=5, offset=0)
@@ -120,8 +124,8 @@ class MMALevelState(MMAAddressTableConsumer):
         self.last_pickup_addr: int = 0
         self.collected_tokens: list[bool] = [False] * 5
 
-        # Validation
-        if len(self.location_lookup[LocationType.ENERGY]) != len(self.energy_thresholds):
+        # Validation (for regular levels)
+        if not is_boss_level and len(self.location_lookup[LocationType.ENERGY]) != len(self.energy_thresholds):
             raise LevelConfigurationException(
                 LevelName(self.region.name),
                 f"Client expects {len(self.energy_thresholds)} but the level has {len(self.location_lookup[LocationType.ENERGY])}",
@@ -135,6 +139,9 @@ class MMALevelState(MMAAddressTableConsumer):
     # It should include a param indicating whether this is the active level, since persisted level
     # data is only updated when the player returns to the Hub.
     async def get_checked_locations(self, ctx: "BizHawkClientContext") -> list[int]:
+        if self.pickup_table is None:
+            return []
+
         # TODO: technically we could do visit-sanity if we wanted, since the game tracks it.
         # Would need to adjust all of this though, since it's 2 bytes prior to the Bonus.
         data = await bizhawk.read(
@@ -183,6 +190,9 @@ class MMALevelState(MMAAddressTableConsumer):
 
     async def initialize(self, ctx: "BizHawkClientContext", active: bool) -> list[int]:
         from CommonClient import logger
+
+        if self.pickup_table is None:
+            return []
 
         """Returns any checked locations from save data.
         If the level is currently active it instead checks the active memory."""
@@ -373,14 +383,16 @@ class MMAGameState(MMAAddressTableConsumer):
 
         self.player: MMAPlayerState = MMAPlayerState(address_table)
         self.bosses_beaten: list[bool] = [False] * 5
+        # All levels (including bosses) have a level state and contribute the same offset.
         self.level_states: dict[str, MMALevelState] = {
             region.ingame_identifier: MMALevelState(
                 self.address_table,
                 region,
                 address_table.level_state + (i * MMALevelState.level_state_total_size),
                 energy_thresholds,
+                type(region) is MMABossRegion,
             )
-            for i, region in enumerate(non_boss_region_lookup.values())
+            for i, region in enumerate(region_lookup.values())
         }
         self.level_unlocks: list[bool] = [False for _ in region_lookup.values()]
         self.amulets: dict[LocationType, MMAAmuletState] = {
