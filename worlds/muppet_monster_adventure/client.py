@@ -578,19 +578,23 @@ class MMAGameState(MMAAddressTableConsumer):
             total_size += size
         custom_data = await bizhawk.read(ctx.bizhawk_ctx, lookups)
 
-        def get_int(index: int) -> int:
-            return int.from_bytes(custom_data[index], byteorder="little")
+        current_index: int = 0
 
-        custom_marker = get_int(0)
+        def next_int() -> int:
+            nonlocal current_index
+            current_index += 1
+            return int.from_bytes(custom_data[current_index], byteorder="little")
+
+        custom_marker = next_int()
         if custom_marker != self.custom_marker_value:
             # Not archipelago save (yet). Initial save information may be incorrect.
             return
-        self.last_received_index = get_int(1)
-        player_data = get_int(2)
+        self.last_received_index = next_int()
+        player_data = next_int()
         self.player.unpack(player_data)
         self.goaled = ((player_data >> MMAPlayerState.packed_size) & 1) == 1
 
-        unlocks_int = get_int(2)
+        unlocks_int = next_int()
         self.level_unlocks = [((unlocks_int >> idx) & 1) == 1 for idx, _ in enumerate(self.level_unlocks)]
 
     async def save(self, ctx: "BizHawkClientContext") -> None:
