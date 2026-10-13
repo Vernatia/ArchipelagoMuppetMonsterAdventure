@@ -122,7 +122,6 @@ class MMALevelState(MMAAddressTableConsumer):
         self.energy: int = 0
         self.current_energy_threshold: int = -1
         self.last_pickup_addr: int = 0
-        self.collected_tokens: list[bool] = [False] * 5
 
         # Validation (for regular levels)
         if not is_boss_level and len(self.location_lookup[LocationType.ENERGY]) != len(self.energy_thresholds):
@@ -130,9 +129,6 @@ class MMALevelState(MMAAddressTableConsumer):
                 LevelName(self.region.name),
                 f"Client expects {len(self.energy_thresholds)} but the level has {len(self.location_lookup[LocationType.ENERGY])}",
             )
-
-    def print(self) -> str:
-        return f"Tokens: {self.collected_tokens}, Energy: {self.energy}, Bonus: {self.bonus.flags}"
 
     # TODO: Need a method to validate all of this data on connect,
     # since the game stores all permanent pickups just after the level's general data.
@@ -183,7 +179,6 @@ class MMALevelState(MMAAddressTableConsumer):
             token_location_lookup = self.location_lookup[LocationType.TOKEN]
             for i, token_info in enumerate(self.pickup_table.tokens):
                 if self.last_pickup_addr == token_info.active:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     break
         return collected_locations
@@ -209,12 +204,10 @@ class MMALevelState(MMAAddressTableConsumer):
                 continue
             if active:
                 if addresses[i][0] == 0:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     logger.info(f"Collected token from active level {token_location_lookup[i].full_identifier}")
             else:
                 if ((addresses[i][0] >> token.save_offset) & 1) == 1:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     logger.info(f"Collected token from save state {token_location_lookup[i].full_identifier}")
         return collected_locations

@@ -158,7 +158,7 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01EB8E0, save=0x0CD16B, save_offset=6),  # Near BONUS O
                 PickupAddress(active=0x01F0F58, save=0x0CD186, save_offset=4),  # Pushing puzzle
                 PickupAddress(active=0x01F106C, save=0x0CD187, save_offset=0),  # Rizzo
-                PickupAddress(active=0x01F106C, save=0x0CD16B, save_offset=2),  # Above Rizzo
+                PickupAddress(active=0x01EB888, save=0x0CD16B, save_offset=2),  # Above Rizzo
                 PickupAddress(active=0x01E8364, save=0x0CD13C, save_offset=4),  # BONUS
             ]
         ),
@@ -203,7 +203,7 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01E5FC8, save=0x0CD3DF, save_offset=0),  # Beaker
                 PickupAddress(active=0x01E5FF4, save=0x0CD3DF, save_offset=2),  # Platform
                 PickupAddress(active=0x01E6020, save=0x0CD3DF, save_offset=4),  # Hidden
-                PickupAddress(active=0x01E5FF4, save=0x0CD3AC, save_offset=4),  # BONUS
+                PickupAddress(active=0x01E2950, save=0x0CD3AC, save_offset=4),  # BONUS
             ]
         ),
         LevelName.ICE_TO_MEETCHA: LevelPickupTable(
