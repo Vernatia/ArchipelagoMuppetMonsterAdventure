@@ -572,33 +572,33 @@ class MMAGameState(MMAAddressTableConsumer):
         if len(level_changes) > 0:
             _ = await ctx.check_locations(level_changes)
 
-        sizes: list[int] = [
-            self.saved_custom_marker_size,
-            self.saved_received_index_size,
-            self.saved_abilities_and_goal_size,
-            self.saved_level_unlocks_size,
-        ]
-        lookups: list[tuple[int, int, str]] = []
-        total_size: int = 0
-        for size in sizes:
-            lookups.append((self.address_table.custom_save_data + total_size, size, "MainRAM"))
-            total_size += size
-        custom_data = await bizhawk.read(ctx.bizhawk_ctx, lookups)
-
-        def get_int(index: int) -> int:
-            return int.from_bytes(custom_data[index], byteorder="little")
-
-        custom_marker = get_int(0)
-        if custom_marker != self.custom_marker_value:
-            # Not archipelago save (yet). Initial save information may be incorrect.
-            return
-        self.last_received_index = get_int(1)
-        player_data = get_int(2)
-        self.player.unpack(player_data)
-        self.goaled = ((player_data >> MMAPlayerState.packed_size) & 1) == 1
-
-        unlocks_int = get_int(2)
-        self.level_unlocks = [((unlocks_int >> idx) & 1) == 1 for idx, _ in enumerate(self.level_unlocks)]
+    #         sizes: list[int] = [
+    #             self.saved_custom_marker_size,
+    #             self.saved_received_index_size,
+    #             self.saved_abilities_and_goal_size,
+    #             self.saved_level_unlocks_size,
+    #         ]
+    #         lookups: list[tuple[int, int, str]] = []
+    #         total_size: int = 0
+    #         for size in sizes:
+    #             lookups.append((self.address_table.custom_save_data + total_size, size, "MainRAM"))
+    #             total_size += size
+    #         custom_data = await bizhawk.read(ctx.bizhawk_ctx, lookups)
+    #
+    #         def get_int(index: int) -> int:
+    #             return int.from_bytes(custom_data[index], byteorder="little")
+    #
+    #         custom_marker = get_int(0)
+    #         if custom_marker != self.custom_marker_value:
+    #             # Not archipelago save (yet). Initial save information may be incorrect.
+    #             return
+    #         self.last_received_index = get_int(1)
+    #         player_data = get_int(2)
+    #         self.player.unpack(player_data)
+    #         self.goaled = ((player_data >> MMAPlayerState.packed_size) & 1) == 1
+    #
+    #         unlocks_int = get_int(2)
+    #         self.level_unlocks = [((unlocks_int >> idx) & 1) == 1 for idx, _ in enumerate(self.level_unlocks)]
 
     async def save(self, ctx: "BizHawkClientContext") -> None:
         from CommonClient import logger
@@ -769,7 +769,7 @@ class MMAClient(BizHawkClient):
         await self.state.get_checked_locations(ctx)
         await self.state.receive_items(ctx)
         # Persist the state in save memory
-        await self.state.save(ctx)
+        # await self.state.save(ctx)
         return
 
     async def get_level_name(self, ctx: "BizHawkClientContext") -> str:
