@@ -10,7 +10,7 @@ Game Page | [Setup] | [Items] | [Locations]
 
 See full instructions on [the setup page].
 
-[the setup page]: /tutorial/Muppet%20Monster%20Adventure/setup/en
+[the setup page]: setup_en
 
 ## Where is the options page?
 
@@ -47,10 +47,10 @@ better understand them, check out the [location guide], which explains all the
 names used in locations and provides more detailed descriptions for each
 individual location.
 
-[location guide]: /tutorial/Muppet%20Monster%20Adventure/locations/en
+[location guide]: locations_en
 
 ## Where can I learn more about Muppet Monster Adventure items?
 
 Check out the [item guide], which explains the named groups available for items.
 
-[item guide]: /tutorial/Muppet%20Monster%20Adventure/items/en
+[item guide]: items_en
