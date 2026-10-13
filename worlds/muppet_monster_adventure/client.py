@@ -122,7 +122,6 @@ class MMALevelState(MMAAddressTableConsumer):
         self.energy: int = 0
         self.current_energy_threshold: int = -1
         self.last_pickup_addr: int = 0
-        self.collected_tokens: list[bool] = [False] * 5
 
         # Validation (for regular levels)
         if not is_boss_level and len(self.location_lookup[LocationType.ENERGY]) != len(self.energy_thresholds):
@@ -130,9 +129,6 @@ class MMALevelState(MMAAddressTableConsumer):
                 LevelName(self.region.name),
                 f"Client expects {len(self.energy_thresholds)} but the level has {len(self.location_lookup[LocationType.ENERGY])}",
             )
-
-    def print(self) -> str:
-        return f"Tokens: {self.collected_tokens}, Energy: {self.energy}, Bonus: {self.bonus.flags}"
 
     # TODO: Need a method to validate all of this data on connect,
     # since the game stores all permanent pickups just after the level's general data.
@@ -183,7 +179,6 @@ class MMALevelState(MMAAddressTableConsumer):
             token_location_lookup = self.location_lookup[LocationType.TOKEN]
             for i, token_info in enumerate(self.pickup_table.tokens):
                 if self.last_pickup_addr == token_info.active:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     break
         return collected_locations
@@ -209,12 +204,10 @@ class MMALevelState(MMAAddressTableConsumer):
                 continue
             if active:
                 if addresses[i][0] == 0:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     logger.info(f"Collected token from active level {token_location_lookup[i].full_identifier}")
             else:
                 if ((addresses[i][0] >> token.save_offset) & 1) == 1:
-                    self.collected_tokens[i]
                     collected_locations.append(token_location_lookup[i].ap_id())
                     logger.info(f"Collected token from save state {token_location_lookup[i].full_identifier}")
         return collected_locations
@@ -585,19 +578,23 @@ class MMAGameState(MMAAddressTableConsumer):
             total_size += size
         custom_data = await bizhawk.read(ctx.bizhawk_ctx, lookups)
 
-        def get_int(index: int) -> int:
-            return int.from_bytes(custom_data[index], byteorder="little")
+        current_index: int = 0
 
-        custom_marker = get_int(0)
+        def next_int() -> int:
+            nonlocal current_index
+            current_index += 1
+            return int.from_bytes(custom_data[current_index], byteorder="little")
+
+        custom_marker = next_int()
         if custom_marker != self.custom_marker_value:
             # Not archipelago save (yet). Initial save information may be incorrect.
             return
-        self.last_received_index = get_int(1)
-        player_data = get_int(2)
+        self.last_received_index = next_int()
+        player_data = next_int()
         self.player.unpack(player_data)
         self.goaled = ((player_data >> MMAPlayerState.packed_size) & 1) == 1
 
-        unlocks_int = get_int(2)
+        unlocks_int = next_int()
         self.level_unlocks = [((unlocks_int >> idx) & 1) == 1 for idx, _ in enumerate(self.level_unlocks)]
 
     async def save(self, ctx: "BizHawkClientContext") -> None:
