@@ -2,9 +2,9 @@
 
 [Game Page] | [Setup] | [Items] | Locations
 
-[Game Page]: en_Muppet%20Monster%20Adventure
-[Setup]: setup_en
-[Items]: items_en
+[Game Page]: en_Muppet%20Monster%20Adventure.md
+[Setup]: setup_en.md
+[Items]: items_en.md
 
 ## Locations
   * Each **Normal Level** has a number of Tokens (5 - 7), Evil Energy, and BONUS letters.
@@ -20,7 +20,7 @@
     ![Token image](../assets/Token.png)
   - *Evil Energy* - Collecting 50% and 100% are checks  
     ![Green Evil Energy image](../assets/Green_Evil_Energy.png) ![Red Evil Energy image](../assets/Red_Evil_Energy.png)
-    ![Green Evil Energy image](../assets/Blue_Evil_Energy.png) ![Yellow Evil Energy image](../assets/Yellow_Evil_Energy.png)
+    ![Blue Evil Energy image](../assets/Blue_Evil_Energy.png) ![Yellow Evil Energy image](../assets/Yellow_Evil_Energy.png)
   - *BONUS Letters* - The 5 letters of the word BONUS, these are checks, and together, open a Bonus Token Chest  
     ![Letter B BONUS image](../assets/Bonus_Letter_B.png) ![Letter O BONUS image](../assets/Bonus_Letter_O.png)
     ![Letter N BONUS image](../assets/Bonus_Letter_N.png) ![Letter U BONUS image](../assets/Bonus_Letter_U.png)

@@ -2,9 +2,9 @@
 
 [Game Page] | Setup | [Items] | [Locations]
 
-[Game Page]: en_Muppet%20Monster%20Adventure
-[Items]: items_en
-[Locations]: locations_en
+[Game Page]: en_Muppet%20Monster%20Adventure.md
+[Items]: items_en.md
+[Locations]: locations_en.md
 
 ### Required Software
 
@@ -12,7 +12,7 @@ Important: At this time, Mac is not supported, since I do not have access to a d
 Want to help with testing for Mac support? Feel free to reach out!
 
 - This has only be developed to work with the following emulators:
-  - [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) - Tested on versions 2.10 and 2.11; with less recent versions of Archipelago, you may need less recent versions.
+  - [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) - Tested on versions 2.10 and 2.11
 - [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases) version 0.6.8 or later.
 - The [Muppet Monster Adventure .apworld](https://github.com/heatblayze/ArchipelagoMuppetMonsterAdventure/releases).
 - A legal US Muppet Monster Adventure ROM (Serial code: SLUS-01238).  We cannot help with this step.
@@ -61,8 +61,8 @@ Please follow the options below corresponding to your choice of emulator.
 13. Start a new game (or if continuing an existing seed, load into that save file).
 14. Start playing!
 
-### Optional Setup
+### Companion Software
 
 No [Poptracker](https://poptracker.github.io) package is planned or supported at this time.
 
-[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is also not supported at this.
+[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is also not supported at this time.

@@ -2,15 +2,15 @@
 
 [Game Page] | [Setup] | Items | [Locations]
 
-[Game Page]: en_Muppet%20Monster%20Adventure
-[Setup]: setup_en
-[Locations]: locations_en
+[Game Page]: en_Muppet%20Monster%20Adventure.md
+[Setup]: setup_en.md
+[Locations]: locations_en.md
 
 ## Item
 
 The Muppet Monster Adventure randomizer has the follow items:
 
-* **Abilities** - These are **Progression** and are what lets you actual do things
+* **Abilities** - These are **Progression** and are what lets you actually do things
   - *Glide* - The ability to glide from a high location to a lower location,
                preferably towards something you couldn't just walk to
   - *Climb* - The ability to climb up cylindical pillars that are perfect cat scratch posts
@@ -40,7 +40,7 @@ The Muppet Monster Adventure randomizer has the follow items:
     * The Monstery Monastery
     * Ice to Meetcha!
     * For Peton's Sake
-  - *Boss leves*
+  - *Boss levels*
     * Noseferatu Bites Back!
     * Bee-ware the WereBear!
     * Cower Before... Ker-Monster!
