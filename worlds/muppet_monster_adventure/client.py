@@ -616,8 +616,8 @@ class MMAClient(BizHawkClient):
     patch_suffix = None
 
     # Memory sizes
-    game_identifier_size: int = 11
-    level_name_size: int = 10
+    game_identifier_size: ClassVar[int] = 11
+    level_name_size: ClassVar[int] = 10
 
     version_addresses: ClassVar[dict[str, AddressTable]] = {
         "SLUS_012.38": ntsc_addresses,
@@ -639,18 +639,20 @@ class MMAClient(BizHawkClient):
         0xAC64,
     ]
 
+    energy_thresholds: ClassVar[list[float]] = [0.5, 1.0]
+
     def __init__(self):
         super().__init__()
 
         self.state: MMAGameState
         self.last_received_index: int = 0
         self.goaled: bool = False
+        self.goal_target: int = 6
         self.was_save_loaded: bool = False
         self.address_table: AddressTable
 
     def reset_state(self, level_name: str | None = None) -> None:
-        # TODO: options
-        self.state = MMAGameState(self.address_table, 6, [0.5, 1.0])
+        self.state = MMAGameState(self.address_table, self.goal_target, self.energy_thresholds)
         if level_name is not None:
             self.state.active_level_name = level_name
 
@@ -685,7 +687,10 @@ class MMAClient(BizHawkClient):
 
         match cmd:
             case "Connected":
-                # TODO: Read relevant slot data & reset state
+                if ctx.slot_data is not None:
+                    self.goal_target = ctx.slot_data["goal_count"] or 6
+                # Ensure to reset the state in case something has changed here.
+                self.reset_state()
                 pass
             case _:
                 pass
