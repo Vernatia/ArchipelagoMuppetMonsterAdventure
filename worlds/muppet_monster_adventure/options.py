@@ -44,7 +44,7 @@ class TrapRatio(Range):
 
     display_name = "Trap Ratio"
     range_start = 0
-    range_start = 100
+    range_end = 100
     default = 10
 
 
