@@ -166,6 +166,8 @@ class MuppetMonsterAdventureWorld(World):
 
         if len(trap_options) == 0:
             self.options.trap_ratio.value = 0
+        if len(filler_options) == 0:
+            self.options.trap_ratio.value = 100
 
         trap_count: int = 0
         if self.options.trap_ratio.value > 0:
