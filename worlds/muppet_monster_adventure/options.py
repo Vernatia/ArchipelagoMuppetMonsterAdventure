@@ -31,8 +31,8 @@ class BossGoal(Range):
 
     display_name = "Required Bosses"
     range_start = 1
-    range_end = 5
-    default = 5
+    range_end = 6
+    default = 6
 
 
 class TrapRatio(Range):

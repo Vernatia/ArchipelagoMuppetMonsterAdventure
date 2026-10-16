@@ -341,7 +341,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.boss_goal_count: int = boss_goal_count
 
         self.player: MMAPlayerState = MMAPlayerState(address_table)
-        self.bosses_beaten: list[bool] = [False] * 5
+        self.bosses_beaten: list[bool] = [False] * 6
         # All levels (including bosses) have a level state and contribute the same offset.
         self.level_states: dict[str, MMALevelState] = {
             region.ingame_identifier: MMALevelState(
@@ -383,6 +383,7 @@ class MMAGameState(MMAAddressTableConsumer):
                 ctx.bizhawk_ctx,
                 [
                     (self.address_table.level_unlock_states, write_list, "MainRAM"),
+                    # First zone is always unlocked, so this is only subsequent zones
                     (self.address_table.zone_unlocked_count, [5], "MainRAM"),
                     # Technically don't need to set this every frame, but it's fine...
                     (self.address_table.hub_autospin, (0).to_bytes(length=4, byteorder="little"), "MainRAM"),
