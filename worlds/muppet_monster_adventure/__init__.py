@@ -24,6 +24,7 @@ from .locations import (
     MMABonusLetterLocationData,
     MMABossLocationData,
     MMAEnergyLocationData,
+    MMALocationData,
     MMAMuppetTokenLocationData,
     all_locations_table,
     location_name_groups,
@@ -86,23 +87,25 @@ class MuppetMonsterAdventureWorld(World):
             region = Region(region_def.name, self.player, self.multiworld)
             locations: dict[str, int] = {}
             for loc in region_def.locations:
-                include: bool = True
-                match loc:
-                    case MMABonusLetterLocationData():
-                        include = self.options.bonus_sanity.value == Toggle.option_true
-                    case MMAMuppetTokenLocationData():
-                        include = self.options.token_sanity.value == Toggle.option_true
-                    case MMAEnergyLocationData():
-                        include = loc.energy_amount.value in self.options.energy_thresholds.value
-                    case _:
-                        pass
-                if include:
-                    self.location_count += 1
-                    locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
+                if not self.is_location_included(loc):
+                    continue
+                self.location_count += 1
+                locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
             region.add_locations(locations, MMALocation)
             regions.append(region)
         self.multiworld.regions.extend(regions)
         return
+
+    def is_location_included(self, loc: MMALocationData) -> bool:
+        match loc:
+            case MMABonusLetterLocationData():
+                return self.options.bonus_sanity.value == Toggle.option_true
+            case MMAMuppetTokenLocationData():
+                return self.options.token_sanity.value == Toggle.option_true
+            case MMAEnergyLocationData():
+                return loc.energy_amount.value in self.options.energy_thresholds.value
+            case _:
+                return True
 
     def create_item(self, name: str) -> "MMAItem":
         item_id: int = self.item_name_to_id[name]
@@ -221,6 +224,8 @@ class MuppetMonsterAdventureWorld(World):
 
             base_region_rule = rules.CanReachRegion(region_def.name)
             for location in region_def.locations:
+                if not self.is_location_included(location):
+                    continue
                 rule: rules.Rule = base_region_rule
                 if location.ability_requirements is not None:
                     options: list[rules.Rule] = []
