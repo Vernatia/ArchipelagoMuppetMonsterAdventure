@@ -1,28 +1,30 @@
 from dataclasses import dataclass
 
 from Options import OptionCounter, OptionSet, PerGameCommonOptions, Range, Toggle
-from worlds.muppet_monster_adventure.items import filler_items_table, trap_items_table
+
+from .items import filler_items_table, trap_items_table
+from .locations import EnergyAmount
 
 
 class EnergyThresholds(OptionSet):
     """Toggle individual Evil Energy check thresholds."""
 
     display_name = "Evil Energy Thresholds"
-    valid_keys = ["50%", "100%"]
-    default = {"50%": 1, "100%": 1}
+    valid_keys = [it.value for it in EnergyAmount]
+    default = {it.value: 1 for it in EnergyAmount}
 
 
 class BonusLocations(Toggle):
     """If enabled, each BONUS letter in regular levels will be a check."""
 
-    display_name = "BONUS-sanity"
+    display_name = "BONUSsanity"
     default = True
 
 
 class TokenLocations(Toggle):
     """If enabled, Muppet Tokens will be checks."""
 
-    display_name = "Token-sanity"
+    display_name = "Tokensanity"
     default = True
 
 

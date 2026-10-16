@@ -1,6 +1,7 @@
 from typing import Any, Dict, cast
 
 from BaseClasses import Item, ItemClassification, Location, MultiWorld, Region
+from Options import Toggle
 from rule_builder import rules
 from worlds.AutoWorld import World
 
@@ -16,8 +17,12 @@ from .items import (
     trap_items_table,
 )
 from .locations import (
+    EnergyAmount,
     LocationType,
+    MMABonusLetterLocationData,
     MMABossLocationData,
+    MMAEnergyLocationData,
+    MMAMuppetTokenLocationData,
     all_locations_table,
     location_name_groups,
     location_name_to_id,
@@ -79,8 +84,19 @@ class MuppetMonsterAdventureWorld(World):
             region = Region(region_def.name, self.player, self.multiworld)
             locations: dict[str, int] = {}
             for loc in region_def.locations:
-                self.location_count += 1
-                locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
+                include: bool = True
+                match loc:
+                    case MMABonusLetterLocationData():
+                        include = self.options.bonus_sanity.value == Toggle.option_true
+                    case MMAMuppetTokenLocationData():
+                        include = self.options.token_sanity.value == Toggle.option_true
+                    case MMAEnergyLocationData():
+                        include = loc.energy_amount.value in self.options.energy_thresholds.value
+                    case _:
+                        pass
+                if include:
+                    self.location_count += 1
+                    locations.update({loc.full_identifier: location_name_to_id[loc.full_identifier]})
             region.add_locations(locations, MMALocation)
             regions.append(region)
         self.multiworld.regions.extend(regions)
@@ -99,6 +115,7 @@ class MuppetMonsterAdventureWorld(World):
         slot_data: dict[str, object] = {
             "start_location": self.starting_level.name,
             # "death_link": self.options.death_link.value
+            "goal_count": self.options.goal.value,
         }
         return slot_data
 
@@ -110,18 +127,20 @@ class MuppetMonsterAdventureWorld(World):
         print(f"starter level: {starter_level_name}\n")
         for item_def in required_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
-            if type(item_def) is not MMALevelItemData:
-                if type(item_def) is MMAAbilityItemData and (
-                    item_def.ability_type == AbilityFlag.GLOVE or item_def.ability_type == AbilityFlag.SPIN
-                ):
-                    # TODO: Make this an option (and guide everyone to keep it on until we can reliably lock these).
-                    self.starter_items.append(item)
-                else:
+            match item_def:
+                case MMALevelItemData():
+                    if item_def.name != starter_level_name:
+                        pool.append(item)
+                    else:
+                        self.starting_level = item
+                case MMAAbilityItemData():
+                    if item_def.ability_type == AbilityFlag.GLOVE or item_def.ability_type == AbilityFlag.SPIN:
+                        # TODO: Make this an option (and guide everyone to keep it on until we can reliably lock these).
+                        self.starter_items.append(item)
+                    else:
+                        pool.append(item)
+                case _:
                     pool.append(item)
-            elif item_def.name != starter_level_name:
-                pool.append(item)
-            else:
-                self.starting_level = item
 
         # TODO: make the weights of these options
         # Add buffer filler items to pool
