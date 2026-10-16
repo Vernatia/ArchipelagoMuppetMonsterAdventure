@@ -429,58 +429,40 @@ class MMAGameState(MMAAddressTableConsumer):
                     match item.item_type:
                         case FillerType.GAIN_HEALTH:
                             await self.player.change_current_health(True, ctx)
-                            pass
                         case FillerType.GAIN_HEART:
                             await self.player.change_max_health(True, ctx)
-                            pass
                         case FillerType.GAIN_LIFE:
                             await self.player.change_current_lives(True, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_1_MIN:
                             seconds = 1 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_2_MIN:
                             seconds = 2 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_5_MIN:
                             seconds = 5 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.FULL_HEAL:
                             await self.player.full_heal(ctx)
-                            pass
-                        case _:
-                            pass
                 case MMATrapItemData():
                     match item.trap_type:
                         case TrapType.LOSE_HEALTH:
                             await self.player.change_current_health(False, ctx)
-                            pass
                         case TrapType.LOSE_HEART:
                             await self.player.change_max_health(False, ctx)
-                            pass
                         case TrapType.LOSE_LIFE:
                             await self.player.change_current_lives(False, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_1_SEC:
                             seconds = 1
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_2_SEC:
                             seconds = 2
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_5_SEC:
                             seconds = 5
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.ONE_HIT_KO:
                             await self.player.zero_health(ctx)
-                            pass
-                        case _:
-                            pass
                     pass
                 case _:
                     pass
