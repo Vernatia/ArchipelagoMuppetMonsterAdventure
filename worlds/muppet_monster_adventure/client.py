@@ -341,7 +341,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.boss_goal_count: int = boss_goal_count
 
         self.player: MMAPlayerState = MMAPlayerState(address_table)
-        self.bosses_beaten: list[bool] = [False] * 5
+        self.bosses_beaten: list[bool] = [False] * 6
         # All levels (including bosses) have a level state and contribute the same offset.
         self.level_states: dict[str, MMALevelState] = {
             region.ingame_identifier: MMALevelState(
@@ -366,6 +366,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.last_amulets_flags: list[bytes] = [bytes(0)]
         self.goaled: bool = False
         self.last_received_index: int = 0
+        self.first_check: bool = True
 
     # For writing persistent flags that need to be set every frame.
     # If this function returns False, we should not update this frame.
@@ -383,6 +384,7 @@ class MMAGameState(MMAAddressTableConsumer):
                 ctx.bizhawk_ctx,
                 [
                     (self.address_table.level_unlock_states, write_list, "MainRAM"),
+                    # First zone is always unlocked, so this is only subsequent zones
                     (self.address_table.zone_unlocked_count, [5], "MainRAM"),
                     # Technically don't need to set this every frame, but it's fine...
                     (self.address_table.hub_autospin, (0).to_bytes(length=4, byteorder="little"), "MainRAM"),
@@ -397,11 +399,16 @@ class MMAGameState(MMAAddressTableConsumer):
         from CommonClient import logger
 
         new_items = ctx.items_received[self.last_received_index :]
+        if self.first_check:
+            self.first_check = False
+            logger.info(f"We've received {len(ctx.items_received)} items")
+            logger.info(f"First check items {new_items}")
         if len(new_items) == 0:
             return
 
         for net_item in new_items:
             item = item_id_to_item[net_item.item]
+            logger.info(f"Got item {item.name}")
             match item:
                 case MMAAbilityItemData():
                     match item.ability_type:
@@ -428,58 +435,40 @@ class MMAGameState(MMAAddressTableConsumer):
                     match item.item_type:
                         case FillerType.GAIN_HEALTH:
                             await self.player.change_current_health(True, ctx)
-                            pass
                         case FillerType.GAIN_HEART:
                             await self.player.change_max_health(True, ctx)
-                            pass
                         case FillerType.GAIN_LIFE:
                             await self.player.change_current_lives(True, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_1_MIN:
                             seconds = 1 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_2_MIN:
                             seconds = 2 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.CHICKEN_TIME_5_MIN:
                             seconds = 5 * 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case FillerType.FULL_HEAL:
                             await self.player.full_heal(ctx)
-                            pass
-                        case _:
-                            pass
                 case MMATrapItemData():
                     match item.trap_type:
                         case TrapType.LOSE_HEALTH:
                             await self.player.change_current_health(False, ctx)
-                            pass
                         case TrapType.LOSE_HEART:
                             await self.player.change_max_health(False, ctx)
-                            pass
                         case TrapType.LOSE_LIFE:
                             await self.player.change_current_lives(False, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_1_SEC:
                             seconds = 1
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_2_SEC:
                             seconds = 2
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.CHICKEN_TIME_5_SEC:
                             seconds = 5
                             await self.player.change_chicken_gun_timer(seconds, ctx)
-                            pass
                         case TrapType.ONE_HIT_KO:
                             await self.player.zero_health(ctx)
-                            pass
-                        case _:
-                            pass
                     pass
                 case _:
                     pass
@@ -629,12 +618,12 @@ class MMAGameState(MMAAddressTableConsumer):
 class MMAClient(BizHawkClient):
     game = game_name
     system = "PSX"
-    items_handling = 0b111
+    items_handling = 0b111  # Receive all items
     patch_suffix = None
 
     # Memory sizes
-    game_identifier_size: int = 11
-    level_name_size: int = 10
+    game_identifier_size: ClassVar[int] = 11
+    level_name_size: ClassVar[int] = 10
 
     version_addresses: ClassVar[dict[str, AddressTable]] = {
         "SLUS_012.38": ntsc_addresses,
@@ -656,18 +645,20 @@ class MMAClient(BizHawkClient):
         0xAC64,
     ]
 
+    energy_thresholds: ClassVar[list[float]] = [0.5, 1.0]
+
     def __init__(self):
         super().__init__()
 
         self.state: MMAGameState
         self.last_received_index: int = 0
         self.goaled: bool = False
+        self.goal_target: int = 6
         self.was_save_loaded: bool = False
         self.address_table: AddressTable
 
     def reset_state(self, level_name: str | None = None) -> None:
-        # TODO: options
-        self.state = MMAGameState(self.address_table, 6, [0.5, 1.0])
+        self.state = MMAGameState(self.address_table, self.goal_target, self.energy_thresholds)
         if level_name is not None:
             self.state.active_level_name = level_name
 
@@ -702,7 +693,10 @@ class MMAClient(BizHawkClient):
 
         match cmd:
             case "Connected":
-                # TODO: Read relevant slot data & reset state
+                if ctx.slot_data is not None:
+                    self.goal_target = ctx.slot_data["goal_count"] or 6
+                # Ensure to reset the state in case something has changed here.
+                self.reset_state()
                 pass
             case _:
                 pass

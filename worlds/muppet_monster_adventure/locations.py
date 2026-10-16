@@ -64,6 +64,7 @@ class MMAEnergyLocationData(MMALocationData):
         ability_requirements: list[AbilityFlag] | None = None,
     ):
         super().__init__(LocationType.ENERGY, f"{LocationType.ENERGY.value} - {amount.value}", ability_requirements)
+        self.energy_amount: EnergyAmount = amount
 
 
 class BonusLetterType(StrEnum):
