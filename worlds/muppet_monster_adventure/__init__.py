@@ -144,7 +144,6 @@ class MuppetMonsterAdventureWorld(World):
                 case _:
                     pool.append(item)
 
-        # TODO: make the weights of these options
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
 
