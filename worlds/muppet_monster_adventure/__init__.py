@@ -1,4 +1,5 @@
-from typing import Any, Dict, cast
+from collections import Counter
+from typing import cast
 
 from BaseClasses import Item, ItemClassification, Location, MultiWorld, Region
 from Options import Toggle
@@ -8,7 +9,9 @@ from worlds.AutoWorld import World
 from .client import *  # noqa: F403
 from .items import (
     MMAAbilityItemData,
+    MMAFillerItemData,
     MMALevelItemData,
+    MMATrapItemData,
     ability_to_item,
     filler_items_table,
     item_name_groups,
@@ -17,7 +20,6 @@ from .items import (
     trap_items_table,
 )
 from .locations import (
-    EnergyAmount,
     LocationType,
     MMABonusLetterLocationData,
     MMABossLocationData,
@@ -146,7 +148,20 @@ class MuppetMonsterAdventureWorld(World):
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
 
-        trap_count = round(diff / 10)
+        filler_weights: Counter[str] = self.options.filler_weights.value
+        filler: list[MMAFillerItemData] = [filler for filler in filler_items_table if filler_weights[filler.name] > 0]
+
+        trap_weights: Counter[str] = self.options.trap_weights.value
+        traps: list[MMATrapItemData] = [trap for trap in trap_items_table if trap_weights[trap.name] > 0]
+
+        if len(filler) == 0 and len(traps) == 0:
+            filler = [filler_items_table[0]]
+            filler_weights = Counter[str].fromkeys([filler_items_table[0].name], 1)
+
+        if len(traps) == 0:
+            self.options.trap_ratio.value = 0
+
+        trap_count: int = round(diff / float(self.options.trap_ratio.value))
         if diff > 0:
             for _ in range(diff - trap_count):
                 item_def = self.random.choice(filler_items_table)
