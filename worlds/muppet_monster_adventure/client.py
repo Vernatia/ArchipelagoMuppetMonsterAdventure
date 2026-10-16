@@ -41,7 +41,7 @@ class MMAAddressTableConsumer:
 
 
 class MMAFlagField:
-    def __init__(self, size: int, offset: int) -> None:
+    def __init__(self, size: int, *, offset: int = 0) -> None:
         self.size: int = size
         self.offset: int = offset
         self.flags: list[bool] = [False] * size
@@ -60,6 +60,17 @@ class MMAFlagField:
                 changes.append(i)
                 self.flags[i] = True
         return changes
+
+    def unpack(self, packed_data: int) -> None:
+        self.flags = [False] * self.size
+        for index in range(self.size):
+            self.flags[index] = ((packed_data >> index) & 1) == 1
+
+    def pack(self) -> int:
+        packed_flags: int = 0
+        for index, flag in enumerate(self.flags):
+            packed_flags = packed_flags | (flag << index)
+        return packed_flags
 
 
 class MMAMorphState:
@@ -216,7 +227,7 @@ class MMALevelState(MMAAddressTableConsumer):
 class MMAAmuletState:
     # TODO: maybe provide item identifier list
     def __init__(self, offset: int) -> None:
-        self.flags: MMAFlagField = MMAFlagField(4, offset)
+        self.flags: MMAFlagField = MMAFlagField(4, offset=offset)
 
     # TODO: this should return location ids
     def get_checked_locations(self, data: int) -> list[int]:
@@ -327,6 +338,7 @@ class MMAGameState(MMAAddressTableConsumer):
     saved_custom_marker_size: int = 1
     saved_received_index_size: int = 2
     saved_abilities_and_goal_size: int = 2
+    saved_bosses_beaten_size: int = 2
     saved_level_unlocks_size: int = ceil(len(region_lookup) / 8.0)
 
     custom_marker_value: int = 67
@@ -341,7 +353,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.boss_goal_count: int = boss_goal_count
 
         self.player: MMAPlayerState = MMAPlayerState(address_table)
-        self.bosses_beaten: list[bool] = [False] * 6
+        self.bosses_beaten: MMAFlagField = MMAFlagField(6)
         # All levels (including bosses) have a level state and contribute the same offset.
         self.level_states: dict[str, MMALevelState] = {
             region.ingame_identifier: MMALevelState(
@@ -353,7 +365,7 @@ class MMAGameState(MMAAddressTableConsumer):
             )
             for i, region in enumerate(region_lookup.values())
         }
-        self.level_unlocks: list[bool] = [False for _ in region_lookup.values()]
+        self.level_unlocks: MMAFlagField = MMAFlagField(len(region_lookup))
         self.amulets: dict[LocationType, MMAAmuletState] = {
             LocationType.NOSEFERATU_AMULET: MMAAmuletState(0),
             LocationType.WEREBEAR_AMULET: MMAAmuletState(4),
@@ -379,7 +391,7 @@ class MMAGameState(MMAAddressTableConsumer):
 
         if self.active_level_name == "HUB":
             # Write level unlocks, always have all zones unlocked
-            write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.level_unlocks]
+            write_list: list[int] = [0xFF if unlocked else 0x00 for unlocked in self.level_unlocks.flags]
             await bizhawk.write(
                 ctx.bizhawk_ctx,
                 [
@@ -396,19 +408,12 @@ class MMAGameState(MMAAddressTableConsumer):
         return True
 
     async def receive_items(self, ctx: "BizHawkClientContext") -> None:
-        from CommonClient import logger
-
         new_items = ctx.items_received[self.last_received_index :]
-        if self.first_check:
-            self.first_check = False
-            logger.info(f"We've received {len(ctx.items_received)} items")
-            logger.info(f"First check items {new_items}")
         if len(new_items) == 0:
             return
 
         for net_item in new_items:
             item = item_id_to_item[net_item.item]
-            logger.info(f"Got item {item.name}")
             match item:
                 case MMAAbilityItemData():
                     match item.ability_type:
@@ -429,7 +434,7 @@ class MMAGameState(MMAAddressTableConsumer):
                         case _:
                             pass
                 case MMALevelItemData():
-                    self.level_unlocks[item.index] = True
+                    self.level_unlocks.flags[item.index] = True
                     pass
                 case MMAFillerItemData():
                     match item.item_type:
@@ -517,14 +522,13 @@ class MMAGameState(MMAAddressTableConsumer):
                 # This flag stores the highest value boss number. For our purposes we treat this as
                 # the most recent boss number.
                 boss_index = bosses_beaten - 1
-                self.bosses_beaten[boss_index] = True
+                self.bosses_beaten.flags[boss_index] = True
                 location = location_type_lookup[LocationType.BOSS][boss_index]
                 ap_id = location_name_to_id[location.full_identifier]
                 _ = await ctx.check_locations([ap_id])
 
-                completed_bosses = list(filter(lambda b: b, self.bosses_beaten))
+                completed_bosses = list(filter(lambda b: b, self.bosses_beaten.flags))
                 if len(completed_bosses) >= self.boss_goal_count and not self.goaled:
-                    logger.info("Goaled")
                     self.goaled = True
                     await ctx.send_msgs(
                         [
@@ -558,6 +562,7 @@ class MMAGameState(MMAAddressTableConsumer):
             self.saved_custom_marker_size,
             self.saved_received_index_size,
             self.saved_abilities_and_goal_size,
+            self.saved_bosses_beaten_size,
             self.saved_level_unlocks_size,
         ]
         lookups: list[tuple[int, int, str]] = []
@@ -567,7 +572,7 @@ class MMAGameState(MMAAddressTableConsumer):
             total_size += size
         custom_data = await bizhawk.read(ctx.bizhawk_ctx, lookups)
 
-        current_index: int = 0
+        current_index: int = -1
 
         def next_int() -> int:
             nonlocal current_index
@@ -583,23 +588,21 @@ class MMAGameState(MMAAddressTableConsumer):
         self.player.unpack(player_data)
         self.goaled = ((player_data >> MMAPlayerState.packed_size) & 1) == 1
 
-        unlocks_int = next_int()
-        self.level_unlocks = [((unlocks_int >> idx) & 1) == 1 for idx, _ in enumerate(self.level_unlocks)]
+        bosses_beaten_int = next_int()
+        self.bosses_beaten.unpack(bosses_beaten_int)
+
+        level_unlocks_int = next_int()
+        self.level_unlocks.unpack(level_unlocks_int)
 
     async def save(self, ctx: "BizHawkClientContext") -> None:
-        from CommonClient import logger
-
         # TODO: if we really need to (in the event that this overlaps with used data)
         # we can replace this with just the received index and skip over filler items when receiving initially.
-        level_unlocks: int = 0
-        for idx, unlocked in enumerate(self.level_unlocks):
-            level_unlocks |= unlocked << idx
-
         values: list[tuple[int, int]] = [
             (self.saved_custom_marker_size, self.custom_marker_value),
             (self.saved_received_index_size, self.last_received_index),
             (self.saved_abilities_and_goal_size, self.player.pack() | (self.goaled << MMAPlayerState.packed_size)),
-            (self.saved_level_unlocks_size, level_unlocks),
+            (self.saved_bosses_beaten_size, self.bosses_beaten.pack()),
+            (self.saved_level_unlocks_size, self.level_unlocks.pack()),
         ]
         lookups: list[tuple[int, Sequence[int], str]] = []
         total_size: int = 0

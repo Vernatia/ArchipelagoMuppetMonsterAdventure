@@ -206,7 +206,7 @@ class MuppetMonsterAdventureWorld(World):
             region = self.get_region(region_def.name)
             for location in region_def.locations:
                 if type(location) is MMABossLocationData:
-                    # Same rule as the item location
+                    # Rule is specified later in set_rules
                     _ = region.add_event(location.get_event_name(), item_type=MMAItem)
         return
 
