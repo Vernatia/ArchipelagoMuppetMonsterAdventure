@@ -161,7 +161,9 @@ class MuppetMonsterAdventureWorld(World):
         if len(traps) == 0:
             self.options.trap_ratio.value = 0
 
-        trap_count: int = round(diff / float(self.options.trap_ratio.value))
+        trap_count: int = 0
+        if self.options.trap_ratio.value > 0:
+            trap_count = round(diff / float(self.options.trap_ratio.value))
         if diff > 0:
             for _ in range(diff - trap_count):
                 item_def = self.random.choice(filler_items_table)
