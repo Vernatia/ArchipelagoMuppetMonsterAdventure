@@ -95,8 +95,8 @@ class MuppetMonsterAdventureWorld(World):
     def create_event(self, event: str):
         return MMAItem(event, ItemClassification.progression, None, self.player)
 
-    def fill_slot_data(self) -> Dict[str, Any]:
-        slot_data: Dict[str, Any] = {
+    def fill_slot_data(self) -> dict[str, object]:
+        slot_data: dict[str, object] = {
             "start_location": self.starting_level.name,
             # "death_link": self.options.death_link.value
         }
