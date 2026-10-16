@@ -1,4 +1,3 @@
-from collections import Counter
 from typing import cast
 
 from BaseClasses import Item, ItemClassification, Location, MultiWorld, Region
@@ -71,7 +70,7 @@ class MuppetMonsterAdventureWorld(World):
 
     def pre_fill(self) -> None:
         super().pre_fill()
-        for item in self.get_pre_fill_items():
+        for item in [self.starting_level, *self.starter_items]:
             self.push_precollected(item)
         return
 
@@ -111,7 +110,7 @@ class MuppetMonsterAdventureWorld(World):
         item_id: int = self.item_name_to_id[name]
         item = item_id_to_item[item_id]
 
-        return MMAItem(item.name, item.classification, None, self.player)
+        return MMAItem(item.name, item.classification, item_id, self.player)
 
     def create_event(self, event: str):
         return MMAItem(event, ItemClassification.progression, None, self.player)
@@ -129,7 +128,6 @@ class MuppetMonsterAdventureWorld(World):
 
         pool: list[Item] = []
         starter_level_name = self.random.choice(whitelisted_starting_levels)
-        print(f"starter level: {starter_level_name}\n")
         for item_def in required_items_table:
             item = MMAItem(item_def.name, item_def.classification, item_name_to_id[item_def.name], self.player)
             match item_def:

@@ -366,6 +366,7 @@ class MMAGameState(MMAAddressTableConsumer):
         self.last_amulets_flags: list[bytes] = [bytes(0)]
         self.goaled: bool = False
         self.last_received_index: int = 0
+        self.first_check: bool = True
 
     # For writing persistent flags that need to be set every frame.
     # If this function returns False, we should not update this frame.
@@ -398,11 +399,16 @@ class MMAGameState(MMAAddressTableConsumer):
         from CommonClient import logger
 
         new_items = ctx.items_received[self.last_received_index :]
+        if self.first_check:
+            self.first_check = False
+            logger.info(f"We've received {len(ctx.items_received)} items")
+            logger.info(f"First check items {new_items}")
         if len(new_items) == 0:
             return
 
         for net_item in new_items:
             item = item_id_to_item[net_item.item]
+            logger.info(f"Got item {item.name}")
             match item:
                 case MMAAbilityItemData():
                     match item.ability_type:
@@ -612,7 +618,7 @@ class MMAGameState(MMAAddressTableConsumer):
 class MMAClient(BizHawkClient):
     game = game_name
     system = "PSX"
-    items_handling = 0b111
+    items_handling = 0b111  # Receive all items
     patch_suffix = None
 
     # Memory sizes
