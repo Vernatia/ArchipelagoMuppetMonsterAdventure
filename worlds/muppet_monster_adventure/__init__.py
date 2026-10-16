@@ -1,6 +1,6 @@
-from typing import cast
+from typing import cast, Any, Dict
 
-from BaseClasses import Item, Location, MultiWorld, Region
+from BaseClasses import Item, Location, MultiWorld, Region, ItemClassification
 from rule_builder import rules
 from worlds.AutoWorld import World
 
@@ -82,6 +82,22 @@ class MuppetMonsterAdventureWorld(World):
             regions.append(region)
         self.multiworld.regions.extend(regions)
         return
+    
+    def create_item(self, name: str) -> "MMAItem":
+        item_id: int = self.item_name_to_id[name]
+        item = item_id_to_item[item_id]
+
+        return MMAItem(item.name, item.classification, None, self.player)
+        
+    def create_event(self, event: str):
+        return MMAItem(event, ItemClassification.progression, None, self.player)
+
+    def fill_slot_data(self) -> Dict[str, Any]:
+        slot_data: Dict[str, Any] = {
+            "start_location" : self.starting_level.name,
+            #"death_link": self.options.death_link.value
+        }
+        return slot_data
 
     def create_items(self) -> None:
         super().create_items()
