@@ -148,42 +148,55 @@ class MuppetMonsterAdventureWorld(World):
         # Add buffer filler items to pool
         diff = self.location_count - len(pool)
 
-        filler_weights: Counter[str] = self.options.filler_weights.value
-        filler: list[MMAFillerItemData] = [filler for filler in filler_items_table if filler_weights[filler.name] > 0]
+        filler_options: list[MMAFillerItemData] = [
+            filler for filler in filler_items_table if self.options.filler_weights.value[filler.name] > 0
+        ]
+        trap_options: list[MMATrapItemData] = [
+            trap for trap in trap_items_table if self.options.trap_weights.value[trap.name] > 0
+        ]
 
-        trap_weights: Counter[str] = self.options.trap_weights.value
-        traps: list[MMATrapItemData] = [trap for trap in trap_items_table if trap_weights[trap.name] > 0]
+        filler_weights: list[int] = [it for it in self.options.filler_weights.value.values() if it > 0]
+        trap_weights: list[int] = [it for it in self.options.trap_weights.value.values() if it > 0]
 
-        if len(filler) == 0 and len(traps) == 0:
-            filler = [filler_items_table[0]]
-            filler_weights = Counter[str].fromkeys([filler_items_table[0].name], 1)
+        if len(filler_options) == 0 and len(trap_options) == 0:
+            # Need at least one item to fill with
+            filler_options = [filler_items_table[0]]
+            trap_weights[0] = 1
 
-        if len(traps) == 0:
+        if len(trap_options) == 0:
             self.options.trap_ratio.value = 0
 
         trap_count: int = 0
         if self.options.trap_ratio.value > 0:
             trap_count = round(diff / float(self.options.trap_ratio.value))
+
         if diff > 0:
-            for _ in range(diff - trap_count):
-                item_def = self.random.choice(filler_items_table)
-                pool.append(
-                    MMAItem(
-                        item_def.name,
-                        item_def.classification,
-                        item_name_to_id[item_def.name],
-                        self.player,
-                    )
+            filler_count: int = diff - trap_count
+            if filler_count > 0:
+                choices = self.random.choices(filler_options, filler_weights, k=filler_count)
+                pool.extend(
+                    [
+                        MMAItem(
+                            item_def.name,
+                            item_def.classification,
+                            item_name_to_id[item_def.name],
+                            self.player,
+                        )
+                        for item_def in choices
+                    ]
                 )
-            for _ in range(trap_count):
-                item_def = self.random.choice(trap_items_table)
-                pool.append(
-                    MMAItem(
-                        item_def.name,
-                        item_def.classification,
-                        item_name_to_id[item_def.name],
-                        self.player,
-                    )
+            if trap_count > 0:
+                choices = self.random.choices(trap_options, trap_weights, k=trap_count)
+                pool.extend(
+                    [
+                        MMAItem(
+                            item_def.name,
+                            item_def.classification,
+                            item_name_to_id[item_def.name],
+                            self.player,
+                        )
+                        for item_def in choices
+                    ]
                 )
 
         self.multiworld.itempool += pool
