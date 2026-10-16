@@ -65,4 +65,4 @@ Please follow the options below corresponding to your choice of emulator.
 
 No [Poptracker](https://poptracker.github.io) package is planned or supported at this time.
 
-[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is also not supported at this time.
+[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is supported at a basic level.
