@@ -722,52 +722,57 @@ class MMAClient(BizHawkClient):
             self.was_save_loaded = False
             return
 
-        level_name = await self.get_level_name(ctx)
-        if level_name != self.state.active_level_name:
-            # TODO: emit events for trackers and stuff
-            self.state.active_level_name = level_name
+        try:
+            level_name = await self.get_level_name(ctx)
+            if level_name != self.state.active_level_name:
+                # TODO: emit events for trackers and stuff
+                self.state.active_level_name = level_name
 
-        if self.state.active_level_name == "FRONT1":
-            # Force (every frame) setting the cheat locations to 0 to disable them from functioning
-            await bizhawk.write(
-                ctx.bizhawk_ctx,
-                [
-                    (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
-                    (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-                    (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
-                ],
-            )
+            if self.state.active_level_name == "FRONT1":
+                # Force (every frame) setting the cheat locations to 0 to disable them from functioning
+                await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    [
+                        (self.address_table.cheat_menu_level_select, (0).to_bytes(1, "little"), "MainRAM"),
+                        (self.address_table.cheat_permanent_level_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+                        (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
+                    ],
+                )
 
-        # TODO: probably others
-        if (
-            self.state.active_level_name == ""
-            or self.state.active_level_name == "FRONT1"
-            or self.state.active_level_name == "GLOBAL"
-            or self.state.active_level_name.startswith("DEMO")
-        ):
-            # Not in-game.
-            if self.was_save_loaded:
-                # Player returned to menu. Reset state.
-                # Copy the old level name to prevent re-firing any listeners on the level change.
-                self.reset_state(self.state.active_level_name)
-            self.was_save_loaded = False
-            return
+            # TODO: probably others
+            if (
+                self.state.active_level_name == ""
+                or self.state.active_level_name == "FRONT1"
+                or self.state.active_level_name == "GLOBAL"
+                or self.state.active_level_name.startswith("DEMO")
+            ):
+                # Not in-game.
+                if self.was_save_loaded:
+                    # Player returned to menu. Reset state.
+                    # Copy the old level name to prevent re-firing any listeners on the level change.
+                    self.reset_state(self.state.active_level_name)
+                self.was_save_loaded = False
+                return
 
-        if not self.was_save_loaded:
-            await self.state.initialize(ctx)
-            self.was_save_loaded = True
-            await self.write_one_time_flags(ctx)
+            if not self.was_save_loaded:
+                await self.state.initialize(ctx)
+                self.was_save_loaded = True
+                await self.write_one_time_flags(ctx)
 
-        if not await self.state.try_write_flags(ctx):
-            # Game is loaded correctly, but is not in a state to write anything.
-            return
+            if not await self.state.try_write_flags(ctx):
+                # Game is loaded correctly, but is not in a state to write anything.
+                return
 
-        # Locations may have triggered own items, so check those first.
-        await self.state.get_checked_locations(ctx)
-        await self.state.receive_items(ctx)
-        # Persist the state in save memory
-        await self.state.save(ctx)
-        return
+            # Locations may have triggered own items, so check those first.
+            await self.state.get_checked_locations(ctx)
+            await self.state.receive_items(ctx)
+            # Persist the state in save memory
+            await self.state.save(ctx)
+        except bizhawk.RequestFailedError as ex:
+            logger.error(f"Bizhawk connection failed: {ex}")
+        except Exception as genericEx:
+            logger.error(f"Forcibly disconnecting due to an unknown error: {genericEx}\n")
+            await ctx.disconnect(False)
 
     async def get_level_name(self, ctx: "BizHawkClientContext") -> str:
         level_bytes = (
