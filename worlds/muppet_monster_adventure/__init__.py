@@ -13,11 +13,11 @@ from .items import (
     MMATrapItemData,
     ability_to_item,
     filler_items_table,
+    item_id_to_item,
     item_name_groups,
     item_name_to_id,
     required_items_table,
     trap_items_table,
-    item_id_to_item,
 )
 from .locations import (
     LocationType,
