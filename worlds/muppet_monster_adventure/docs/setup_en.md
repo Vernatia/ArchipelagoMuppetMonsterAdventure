@@ -63,6 +63,6 @@ Please follow the options below corresponding to your choice of emulator.
 
 ### Companion Software
 
-![Not Supported](../assets/Not_Supported.png) [Poptracker](https://poptracker.github.io) package is planned or supported at this time.
+![Not Supported](../assets/Not_Supported.png) No [Poptracker](https://poptracker.github.io) package is planned or supported at this time.
 
 ![Basic Support](../assets/Basic_Support.png)[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is supported at a basic level.
