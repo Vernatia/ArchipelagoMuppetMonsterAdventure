@@ -14,6 +14,7 @@ from .items import (
     item_name_to_id,
     required_items_table,
     trap_items_table,
+    item_id_to_item,
 )
 from .locations import (
     LocationType,

@@ -275,7 +275,7 @@ level_groups: list[LevelGroup] = [
                 ),
                 MMAAmuletLocationData(
                     AmuletType.MUCK_MONSTER_AMULET,
-                    "Up climable wall above other Muck Monster Amulet",
+                    "Up climbable wall above other Muck Monster Amulet",
                     [AbilityFlag.CLIMB],
                 ),
                 MMAAmuletLocationData(AmuletType.MUCK_MONSTER_AMULET, "Along the cliff trail"),
@@ -692,7 +692,7 @@ level_groups: list[LevelGroup] = [
                     [AbilityFlag.GLOVE | AbilityFlag.GLIDE],
                 ),
                 TokenLocationData(
-                    "Near BONUS letter 0",
+                    "Near BONUS letter O",
                     [AbilityFlag.GLOVE | AbilityFlag.GLIDE | AbilityFlag.PUSH],
                 ),
                 TokenLocationData(
