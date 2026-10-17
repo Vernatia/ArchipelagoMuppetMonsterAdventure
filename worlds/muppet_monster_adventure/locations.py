@@ -494,7 +494,7 @@ level_groups: list[LevelGroup] = [
             total_energy=400,
             energy=EnergyLocationData(
                 half=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
-                full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.ALL_WEAPONS],
+                full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.ALL_WEAPONS | AbilityFlag.SWIM],
             ),
             bonus=BonusLocationData(
                 b=[AbilityFlag.CLIMB | AbilityFlag.GLIDE],
@@ -605,7 +605,7 @@ level_groups: list[LevelGroup] = [
                 ),
             ],
         ),
-        boss=BossRegionData(LevelName.COWER_BEFORE_KER_MONSTER, [AbilityFlag.GLOVE]),
+        boss=BossRegionData(LevelName.COWER_BEFORE_KER_MONSTER, [AbilityFlag.ALL_WEAPONS]),
     ),
     LevelGroup(
         identifier="VILLAGE",

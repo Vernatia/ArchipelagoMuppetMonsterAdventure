@@ -114,6 +114,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.THE_RIVER_VILE: LevelPickupTable(
             tokens=[
+                # wrong: The River Vile: Muppet Token - Climb near the first checkpoint
                 PickupAddress(active=0x01E4E34, save=0x0CCF5F, save_offset=6),  # Climb near checkpoint
                 PickupAddress(active=0x01E8648, save=0x0CCF74, save_offset=6),  # Rizzo
                 PickupAddress(active=0x01E4DDC, save=0x0CCF5F, save_offset=4),  # Atop the machine
