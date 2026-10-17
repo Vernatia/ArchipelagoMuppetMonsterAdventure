@@ -171,7 +171,7 @@ class MuppetMonsterAdventureWorld(World):
 
         trap_count: int = 0
         if self.options.trap_ratio.value > 0:
-            trap_count = round(diff / float(self.options.trap_ratio.value))
+            trap_count = round(diff / (100 / float(self.options.trap_ratio.value)))
 
         if diff > 0:
             filler_count: int = diff - trap_count
