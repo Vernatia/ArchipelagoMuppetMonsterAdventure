@@ -594,7 +594,7 @@ level_groups: list[LevelGroup] = [
                     [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
                 ),
                 TokenLocationData(
-                    "Near BONUS crate",
+                    "On a hidden ledge near BONUS crate",
                     [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
                 ),
                 TokenLocationData(
