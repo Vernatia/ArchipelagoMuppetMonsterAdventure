@@ -380,7 +380,7 @@ level_groups: list[LevelGroup] = [
         identifier="GRVYARD",
         one=LevelRegionData(
             name=LevelName.GRAVE_MATTERS,
-            total_energy=250,
+            total_energy=350,
             energy=EnergyLocationData(
                 half=[
                     AbilityFlag.GLOVE | AbilityFlag.SPIN,
@@ -718,12 +718,6 @@ level_groups: list[LevelGroup] = [
             name=LevelName.HUT_HUT_HIKE,
             total_energy=500,
             energy=EnergyLocationData(
-                # Nothing: 71
-                # Spin: +24 (95)
-                # Glove: +38 (109)
-                # Swim: +146 (217)
-                # Smash: +6 (77)
-                # Smash+Spin: +48 (119)
                 half=flag_variants(
                     AbilityFlag.SWIM,
                     AbilityFlag.GLOVE,
