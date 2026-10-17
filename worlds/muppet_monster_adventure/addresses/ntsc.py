@@ -114,8 +114,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.THE_RIVER_VILE: LevelPickupTable(
             tokens=[
-                # wrong: The River Vile: Muppet Token - Climb near the first checkpoint
-                PickupAddress(active=0x01E4E34, save=0x0CCF5F, save_offset=6),  # Climb near checkpoint
+                PickupAddress(active=0x01E4E08, save=0x0CCF5F, save_offset=6),  # Climb near checkpoint
                 PickupAddress(active=0x01E8648, save=0x0CCF74, save_offset=6),  # Rizzo
                 PickupAddress(active=0x01E4DDC, save=0x0CCF5F, save_offset=4),  # Atop the machine
                 PickupAddress(active=0x01E8500, save=0x0CCF74, save_offset=2),  # Spin game
@@ -181,7 +180,6 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01F6130, save=0x0CD2C4, save_offset=0),  # Blocks
                 PickupAddress(active=0x01F6E0C, save=0x0CD2C8, save_offset=0),  # Statue hunt
                 PickupAddress(active=0x01EF9BC, save=0x0CD2A2, save_offset=2),  # Next to statue hunt
-                # TODO: double-check this one
                 PickupAddress(active=0x01EF990, save=0x0CD2A2, save_offset=0),  # Next to BONUS S
                 PickupAddress(active=0x01EC600, save=0x0CD274, save_offset=4),  # BONUS
             ]
