@@ -957,7 +957,7 @@ level_groups: list[LevelGroup] = [
             tokens=[
                 TokenLocationData("Slide down the ice", None),
                 TokenLocationData(
-                    "Near the gliding minigame",
+                    "Just after gliding minigame",
                     [AbilityFlag.GLOVE | AbilityFlag.SMASH | AbilityFlag.GLIDE],
                 ),
                 TokenLocationData(
