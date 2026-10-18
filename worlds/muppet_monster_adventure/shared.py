@@ -85,9 +85,9 @@ class FillerType(StrEnum):
     GAIN_HEALTH = "Yip Yip Yip"
     GAIN_HEART = "Delicious Cookie! Om nom nom"
     GAIN_LIFE = "Kissy Kissy"
-    CHICKEN_TIME_1_MIN = "Ethel's Rifle"
-    CHICKEN_TIME_2_MIN = "Stephanie's Shotgun"
-    CHICKEN_TIME_5_MIN = "Camilla's Cannon"
+    CHICKEN_TIME_15_SEC = "Ethel's Rifle"
+    CHICKEN_TIME_30_SEC = "Stephanie's Shotgun"
+    CHICKEN_TIME_1_MIN = "Camilla's Cannon"
     FULL_HEAL = "Hoobygoop Covered Hoobybun"
 
 
