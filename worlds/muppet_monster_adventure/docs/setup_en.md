@@ -8,8 +8,7 @@
 
 ### Required Software
 
-Important: At this time, Mac is not supported, since I do not have access to a device to test.
-Want to help with testing for Mac support? Feel free to reach out!
+Important: This game has been tested and confirmed playable on Windows 11 and Linux (Arch). Other platforms may function correctly (e.g. Mac), but are not officially supported and you may encounter issues. If you have another platform you play on and would like to contribute, please feel free to reach out on the forum post in the official Archipelago Discord server, or simply make a Pull request to this repository.
 
 - This has only be developed to work with the following emulators:
   - [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) - Tested on versions 2.10 and 2.11
@@ -65,4 +64,4 @@ Please follow the options below corresponding to your choice of emulator.
 
 ![Not Supported](../assets/Not_Supported.png) No [Poptracker](https://poptracker.github.io) package is planned or supported at this time.
 
-![Basic Support](../assets/Basic_Support.png)[Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is supported at a basic level.
+![Basic Support](../assets/Basic_Support.png) [Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) is supported at a basic level.

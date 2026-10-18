@@ -114,7 +114,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.THE_RIVER_VILE: LevelPickupTable(
             tokens=[
-                PickupAddress(active=0x01E4E34, save=0x0CCF5F, save_offset=6),  # Climb near checkpoint
+                PickupAddress(active=0x01E4E08, save=0x0CCF5F, save_offset=6),  # Climb near checkpoint
                 PickupAddress(active=0x01E8648, save=0x0CCF74, save_offset=6),  # Rizzo
                 PickupAddress(active=0x01E4DDC, save=0x0CCF5F, save_offset=4),  # Atop the machine
                 PickupAddress(active=0x01E8500, save=0x0CCF74, save_offset=2),  # Spin game

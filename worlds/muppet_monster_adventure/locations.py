@@ -64,6 +64,7 @@ class MMAEnergyLocationData(MMALocationData):
         ability_requirements: list[AbilityFlag] | None = None,
     ):
         super().__init__(LocationType.ENERGY, f"{LocationType.ENERGY.value} - {amount.value}", ability_requirements)
+        self.energy_amount: EnergyAmount = amount
 
 
 class BonusLetterType(StrEnum):
@@ -379,7 +380,7 @@ level_groups: list[LevelGroup] = [
         identifier="GRVYARD",
         one=LevelRegionData(
             name=LevelName.GRAVE_MATTERS,
-            total_energy=250,
+            total_energy=350,
             energy=EnergyLocationData(
                 half=[
                     AbilityFlag.GLOVE | AbilityFlag.SPIN,
@@ -493,7 +494,7 @@ level_groups: list[LevelGroup] = [
             total_energy=400,
             energy=EnergyLocationData(
                 half=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
-                full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.ALL_WEAPONS],
+                full=[AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.ALL_WEAPONS | AbilityFlag.SWIM],
             ),
             bonus=BonusLocationData(
                 b=[AbilityFlag.CLIMB | AbilityFlag.GLIDE],
@@ -593,7 +594,7 @@ level_groups: list[LevelGroup] = [
                     [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
                 ),
                 TokenLocationData(
-                    "Near BONUS crate",
+                    "On a hidden ledge near BONUS crate",
                     [AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.GLOVE],
                 ),
                 TokenLocationData(
@@ -604,7 +605,7 @@ level_groups: list[LevelGroup] = [
                 ),
             ],
         ),
-        boss=BossRegionData(LevelName.COWER_BEFORE_KER_MONSTER, [AbilityFlag.GLOVE]),
+        boss=BossRegionData(LevelName.COWER_BEFORE_KER_MONSTER, [AbilityFlag.ALL_WEAPONS]),
     ),
     LevelGroup(
         identifier="VILLAGE",
@@ -717,12 +718,6 @@ level_groups: list[LevelGroup] = [
             name=LevelName.HUT_HUT_HIKE,
             total_energy=500,
             energy=EnergyLocationData(
-                # Nothing: 71
-                # Spin: +24 (95)
-                # Glove: +38 (109)
-                # Swim: +146 (217)
-                # Smash: +6 (77)
-                # Smash+Spin: +48 (119)
                 half=flag_variants(
                     AbilityFlag.SWIM,
                     AbilityFlag.GLOVE,
@@ -956,7 +951,7 @@ level_groups: list[LevelGroup] = [
             tokens=[
                 TokenLocationData("Slide down the ice", None),
                 TokenLocationData(
-                    "Near the gliding minigame",
+                    "Just after gliding minigame",
                     [AbilityFlag.GLOVE | AbilityFlag.SMASH | AbilityFlag.GLIDE],
                 ),
                 TokenLocationData(
