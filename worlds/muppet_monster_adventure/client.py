@@ -739,6 +739,18 @@ class MMAClient(BizHawkClient):
                     ],
                 )
 
+            # Disable Pepe's UI messages, this also kills minigames
+            # Because the minigame message can't appear, so we'd need to handle this differently
+            await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    [
+                        (self.address_table.pepe_message_ui_counter, (0).to_bytes(4, "little"), "MainRAM"),
+                        #(self.address_table.pepe_message_ui_pointer, (0).to_bytes(4, "little"), "MainRAM"),
+                        (self.address_table.pepe_message_message_pointer, (0).to_bytes(4, "little"), "MainRAM"),
+                    ],
+                )
+
+
             # TODO: probably others
             if (
                 self.state.active_level_name == ""

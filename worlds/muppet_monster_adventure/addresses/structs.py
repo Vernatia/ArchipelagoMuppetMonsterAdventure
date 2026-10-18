@@ -47,6 +47,15 @@ class AddressTable(NamedTuple):
     active_save_index: int
     """Zero-based value of the active save number"""
 
+    pepe_message_ui_counter: int
+    """Timer, or counter, for the Pepe UI element"""
+
+    pepe_message_ui_pointer: int
+    """Seems to be the pointer for the UI itself"""
+
+    pepe_message_message_pointer: int
+    """Pointer to the message being loaded"""
+
     bosses_beaten: int
     """The index (1-based) of the **greatest** boss killed (clockwise)"""
 

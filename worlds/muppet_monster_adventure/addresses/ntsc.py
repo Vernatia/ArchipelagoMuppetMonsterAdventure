@@ -10,6 +10,10 @@ ntsc_addresses = AddressTable(
     active_level_name=0x0B87F8,
     custom_save_data=0x0CCBCE,
     active_save_index=0x0CCAE8,
+    pepe_message_ui_pointer=0x0BB21C,
+    pepe_message_message_pointer=0x0BB220,
+    pepe_message_ui_counter=0x0BB224,
+    # Game trackers and flags
     bosses_beaten=0x0B8904,
     level_unlock_states=0x0AA0C4,
     zone_unlocked_count=0x0E22F0,
