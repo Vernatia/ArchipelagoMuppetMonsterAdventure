@@ -444,14 +444,17 @@ class MMAGameState(MMAAddressTableConsumer):
                             await self.player.change_max_health(True, ctx)
                         case FillerType.GAIN_LIFE:
                             await self.player.change_current_lives(True, ctx)
+                            pass
+                        case FillerType.CHICKEN_TIME_15_SEC:
+                            seconds = 15
+                            await self.player.change_chicken_gun_timer(seconds, ctx)
+                            pass
+                        case FillerType.CHICKEN_TIME_30_SEC:
+                            seconds = 30
+                            await self.player.change_chicken_gun_timer(seconds, ctx)
+                            pass
                         case FillerType.CHICKEN_TIME_1_MIN:
-                            seconds = 1 * 60
-                            await self.player.change_chicken_gun_timer(seconds, ctx)
-                        case FillerType.CHICKEN_TIME_2_MIN:
-                            seconds = 2 * 60
-                            await self.player.change_chicken_gun_timer(seconds, ctx)
-                        case FillerType.CHICKEN_TIME_5_MIN:
-                            seconds = 5 * 60
+                            seconds = 60
                             await self.player.change_chicken_gun_timer(seconds, ctx)
                         case FillerType.FULL_HEAL:
                             await self.player.full_heal(ctx)

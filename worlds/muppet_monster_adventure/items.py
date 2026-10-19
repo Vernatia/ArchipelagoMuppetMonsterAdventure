@@ -56,9 +56,9 @@ filler_items_table: list[MMAFillerItemData] = [
     MMAFillerItemData(FillerType.GAIN_HEALTH),
     MMAFillerItemData(FillerType.GAIN_HEART),
     MMAFillerItemData(FillerType.GAIN_LIFE),
+    MMAFillerItemData(FillerType.CHICKEN_TIME_15_SEC),
+    MMAFillerItemData(FillerType.CHICKEN_TIME_30_SEC),
     MMAFillerItemData(FillerType.CHICKEN_TIME_1_MIN),
-    MMAFillerItemData(FillerType.CHICKEN_TIME_2_MIN),
-    MMAFillerItemData(FillerType.CHICKEN_TIME_5_MIN),
     MMAFillerItemData(FillerType.FULL_HEAL),
 ]
 
