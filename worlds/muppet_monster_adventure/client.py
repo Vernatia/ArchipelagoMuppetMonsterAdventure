@@ -32,6 +32,7 @@ from .shared import (
     TrapType,
     game_name,
 )
+from .message import MessageDisplay
 
 
 class MMAAddressTableConsumer:
@@ -630,6 +631,7 @@ class MMAClient(BizHawkClient):
     # Memory sizes
     game_identifier_size: ClassVar[int] = 11
     level_name_size: ClassVar[int] = 10
+    messageDisplay: MessageDisplay
 
     version_addresses: ClassVar[dict[str, AddressTable]] = {
         "SLUS_012.38": ntsc_addresses,
@@ -692,6 +694,7 @@ class MMAClient(BizHawkClient):
         ctx.items_handling = self.items_handling
         ctx.want_slot_data = True
         ctx.watcher_timeout = 0.125
+        self.messageDisplay = MessageDisplay(found_table)
         return True
 
     def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict[object, object]) -> None:
@@ -739,17 +742,8 @@ class MMAClient(BizHawkClient):
                     ],
                 )
 
-            # Disable Pepe's UI messages, this also kills minigames
-            # Because the minigame message can't appear, so we'd need to handle this differently
-            await bizhawk.write(
-                    ctx.bizhawk_ctx,
-                    [
-                        (self.address_table.pepe_message_ui_counter, (0).to_bytes(4, "little"), "MainRAM"),
-                        #(self.address_table.pepe_message_ui_pointer, (0).to_bytes(4, "little"), "MainRAM"),
-                        (self.address_table.pepe_message_message_pointer, (0).to_bytes(4, "little"), "MainRAM"),
-                    ],
-                )
-
+            # Disable Pepe's UI messages
+            await self.messageDisplay.disablePepeMessages(ctx)
 
             # TODO: probably others
             if (
