@@ -107,6 +107,7 @@ class MMALevelState(MMAAddressTableConsumer):
     bonus_offset: int = 0
     energy_offset: int = 4
     energy_size: int = 2
+    region: MMARegion
 
     def __init__(
         self,
@@ -743,7 +744,12 @@ class MMAClient(BizHawkClient):
                 )
 
             # Disable Pepe's UI messages
-            await self.messageDisplay.disablePepeMessages(ctx)
+            if self.state.active_level_name in self.state.level_states:
+                activeLevel = self.state.level_states[self.state.active_level_name]
+                await self.messageDisplay.updateMiniGameMessages(ctx, activeLevel.region.name)
+                await self.messageDisplay.disablePepeMessages(ctx, activeLevel.region.name)
+            else:
+                await self.messageDisplay.clearPepeMessage(ctx)
 
             # TODO: probably others
             if (

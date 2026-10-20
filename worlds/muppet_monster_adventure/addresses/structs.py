@@ -13,6 +13,16 @@ class PickupAddress(NamedTuple):
     save_offset: int
     """Pickups are stored in save data as 1-2 bits. This is the offset from the start of the byte listed in `save`."""
 
+class MiniGameAddress(NamedTuple):
+    """Mini-games have a Retry message address and a Start message address."""
+
+    retry: int
+    """The address of the mini-game message that displays when a mini-game is retried."""
+    start: int
+    """The address of the mini-game message that displays when talking with Pepe the first time"""
+    name: str
+    """The name of the mini-game"""
+
 
 class LevelPickupTable(NamedTuple):
     """The collection of addresses for each level's pickups.
@@ -21,6 +31,14 @@ class LevelPickupTable(NamedTuple):
     These values are used at runtime to compare against the `level_last_pickup` value."""
 
     tokens: list[PickupAddress]
+
+class MiniGameTable(NamedTuple):
+    """The collection of addresses for each level's mini-game.
+    Note that these should be the addresses of the ACTUAL data, NOT the address
+    which stores the POINTER to the data.
+    These values are used at runtime to compare against the `pepe_message_message_pointer` address."""
+
+    minigames: list[MiniGameAddress]
 
 
 class AddressTable(NamedTuple):
@@ -97,6 +115,9 @@ class AddressTable(NamedTuple):
 
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
+
+    level_minigame_data: dict[LevelName, MiniGameTable]
+    """Lists the memory addresses of mini-games, for each level"""
 
     # Location of cheat pieces in the menu, these need to be cleared every frame
     cheat_menu_level_select: int

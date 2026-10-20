@@ -1,5 +1,5 @@
 from ..shared import LevelName
-from .structs import AddressTable, LevelPickupTable, PickupAddress
+from .structs import AddressTable, LevelPickupTable, MiniGameAddress, MiniGameTable, PickupAddress
 
 ntsc_addresses = AddressTable(
     # This is the number of frames the physics/timer engine runs (for the chicken timer and more?)
@@ -230,6 +230,84 @@ ntsc_addresses = AddressTable(
                 PickupAddress(active=0x01F3C78, save=0x0CD4A9, save_offset=6),  # Tower
                 PickupAddress(active=0x01F3CA4, save=0x0CD4AA, save_offset=0),  # Exit
                 PickupAddress(active=0x01F073C, save=0x0CD47C, save_offset=4),  # BONUS
+            ]
+        ),
+    },
+    # Location of any mini-game in the game, per level
+    level_minigame_data={
+        LevelName.PEACOCK_PURGATORY: MiniGameTable(
+            minigames=[
+                MiniGameAddress(retry=0x14DC46, start=0x14DCB9, name="Peacock Race"), # Race against Percy the Peacock
+                MiniGameAddress(retry=0x14E13F, start=0x14E18D, name="Sunflower Climb"), # Sunflower climb game
+            ]
+        ),
+        LevelName.HALLWAYS_OF_DOOM: MiniGameTable(
+            minigames=[
+                MiniGameAddress(retry=0x14D2AD, start=0x14E18D, name="Pumpking Smash"), # Pumpkin Smashing game
+            ],
+        ),
+        LevelName.POKER_FACES: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.GRAVE_MATTERS: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.MOLTEN_MAYHEM: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.SHIVERING_TIMBER_SHOALS: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.HIKE_OF_THE_HAUNTED: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.THE_RIVER_VILE: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.ESCAPE_CLAWS: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.CROAK_LAHOMA: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.ARABIAN_FRIGHTS: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.FEELING_FLUSHED: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.HUT_HUT_HIKE: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.TEMPLE_OF_PORK: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.THE_BLUEST_BAYOU: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.THE_MONSTERY_MONASTERY: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.ICE_TO_MEETCHA: MiniGameTable(
+            minigames=[
+            ]
+        ),
+        LevelName.FOR_PETONS_SAKE: MiniGameTable(
+            minigames=[
             ]
         ),
     },

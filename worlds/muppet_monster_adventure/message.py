@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from .addresses.structs import AddressTable
 import worlds._bizhawk as bizhawk
 
+
 if TYPE_CHECKING:
     from . import BizHawkClientContext
 
@@ -11,15 +12,75 @@ class MessageDisplay:
     def __init__(self, addressTable: AddressTable):
         self.addressTable = addressTable
 
-    async def disablePepeMessages(self, ctx: "BizHawkClientContext"):
-        """Disables Pepe's UI messages"""
-        """TODO: Fix this to not disable Mini-Fames"""
+    def convertMemoryAddress(self, address: bytes):
+        """Converts a memory address from bytes into the equivalent int"""
+        i = int.from_bytes(address)
+        return int.from_bytes(i.to_bytes(3, 'little'))
+
+    def revertMemoryAddress(self, address: int):
+        """Reverts an int address to Big Endian"""
+        return address.to_bytes(3, 'big')
+
+    async def updateMiniGameMessages(self, ctx: "BizHawkClientContext", levelName: str):
+        """Sets the Start Message for all mini-games to a known string"""
+        if levelName not in self.addressTable.level_minigame_data:
+            return
+        gameAddresses = self.addressTable.level_minigame_data[levelName]
+
+        for minigame in gameAddresses.minigames:
+            # Add a custom message for each mini-game
+            startGame = bytearray(minigame.name + ' press % to play', 'ASCII')
+            startGame.extend(b'\x0A')
+            startGame.extend(b'or & to cancel')
+            startGame.extend(b'\x00')
+            await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    [(minigame.start, startGame, "MainRAM")],
+                )
+
+    async def clearPepeMessage(self, ctx: "BizHawkClientContext"):
         await bizhawk.write(
                 ctx.bizhawk_ctx,
                 [
                     (self.addressTable.pepe_message_ui_counter, (0).to_bytes(4, "little"), "MainRAM"),
-                    #(addressTable.pepe_message_ui_pointer, (0).to_bytes(4, "little"), "MainRAM"),
                     (self.addressTable.pepe_message_message_pointer, (0).to_bytes(4, "little"), "MainRAM"),
                 ],
             )
 
+    async def disablePepeMessages(self, ctx: "BizHawkClientContext", levelName: str):
+        """Disables Pepe's UI messages"""
+        """TODO: Fix this to not disable Mini-Games"""
+        data = await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(self.addressTable.pepe_message_message_pointer, 4, "MainRAM")]
+        )
+
+        messageAddress = data[0]
+        # strip the \x80 from the message address pointer
+        messageAddress = messageAddress[:-1]
+
+        # Ignore any "blank" messages
+        if messageAddress == b'\x00\x00\x00':
+            return
+        converted = self.convertMemoryAddress(messageAddress)
+        
+        # Ignore any levels that aren't valid
+        if levelName not in self.addressTable.level_minigame_data:
+            await self.clearPepeMessage(ctx)
+            return
+
+        gameAddresses = self.addressTable.level_minigame_data[levelName]
+
+        isMiniGame = False
+        for minigame in gameAddresses.minigames:
+            if converted == minigame.start or converted == minigame.retry:
+                isMiniGame = True
+                break
+
+        # don't block mini-game messages
+        if isMiniGame:
+            return
+        
+        print('Memory: ' + str(converted))
+        print(self.revertMemoryAddress(converted))
+        await self.clearPepeMessage(ctx)
