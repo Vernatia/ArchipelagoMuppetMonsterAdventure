@@ -34,7 +34,10 @@ class MessageDisplay:
             startGame.extend(b'\x00')
             await bizhawk.write(
                     ctx.bizhawk_ctx,
-                    [(minigame.start, startGame, "MainRAM")],
+                    [
+                        (minigame.start, startGame, "MainRAM"),
+                        (minigame.retry, startGame, "MainRAM"),
+                    ],
                 )
 
     async def clearPepeMessage(self, ctx: "BizHawkClientContext"):
