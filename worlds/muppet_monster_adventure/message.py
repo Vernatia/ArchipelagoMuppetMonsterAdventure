@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 from .addresses.structs import AddressTable
 import worlds._bizhawk as bizhawk
 
-
 if TYPE_CHECKING:
     from . import BizHawkClientContext
 
@@ -80,7 +79,8 @@ class MessageDisplay:
         # don't block mini-game messages
         if isMiniGame:
             return
-        
+
+        #TODO: Remove this debug once all the mini-games are found and tested
         print('Memory: ' + str(converted))
         print(self.revertMemoryAddress(converted))
         await self.clearPepeMessage(ctx)
