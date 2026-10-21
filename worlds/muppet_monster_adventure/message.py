@@ -19,6 +19,17 @@ class MessageDisplay:
     def revertMemoryAddress(self, address: int):
         """Reverts an int address to Big Endian"""
         return address.to_bytes(3, 'big')
+    
+    async def updateHubMessage(self, ctx: "BizHawkClientContext"):
+        # Add a custom message for each mini-game
+        message = bytearray('Loading...', 'ASCII')
+        message.extend(b'\x00')
+        await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [
+                    (self.addressTable.level_hub_message, message, "MainRAM"),
+                ],
+            )
 
     async def updateMiniGameMessages(self, ctx: "BizHawkClientContext", levelName: str):
         """Sets the Start Message for all mini-games to a known string"""
@@ -51,11 +62,10 @@ class MessageDisplay:
 
     async def disablePepeMessages(self, ctx: "BizHawkClientContext", levelName: str):
         """Disables Pepe's UI messages"""
-        """TODO: Fix this to not disable Mini-Games"""
         data = await bizhawk.read(
             ctx.bizhawk_ctx,
             [(self.addressTable.pepe_message_message_pointer, 4, "MainRAM")]
-        )
+        ) 
 
         messageAddress = data[0]
         # strip the \x80 from the message address pointer

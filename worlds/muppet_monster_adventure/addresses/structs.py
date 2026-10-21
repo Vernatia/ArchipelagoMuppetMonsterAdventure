@@ -116,6 +116,9 @@ class AddressTable(NamedTuple):
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
 
+    level_hub_message:int
+    """The memory address for the Hub message"""
+
     level_minigame_data: dict[LevelName, MiniGameTable]
     """Lists the memory addresses of mini-games, for each level"""
 

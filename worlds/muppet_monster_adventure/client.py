@@ -742,6 +742,8 @@ class MMAClient(BizHawkClient):
                         (self.address_table.cheat_permanent_morph_unlock, (0).to_bytes(1, "little"), "MainRAM"),
                     ],
                 )
+            elif self.state.active_level_name == "HUB":
+                await self.messageDisplay.updateHubMessage(ctx)
 
             # Disable Pepe's UI messages
             if self.state.active_level_name in self.state.level_states:
