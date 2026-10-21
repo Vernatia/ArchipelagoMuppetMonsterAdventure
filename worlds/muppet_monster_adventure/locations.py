@@ -819,7 +819,7 @@ level_groups: list[LevelGroup] = [
             ),
             tokens=[
                 TokenLocationData(
-                    "In the bayou?",
+                    "In the bayou",
                     [AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE],
                 ),
                 TokenLocationData(
