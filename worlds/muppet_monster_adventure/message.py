@@ -65,7 +65,7 @@ class MessageDisplay:
         data = await bizhawk.read(
             ctx.bizhawk_ctx,
             [(self.addressTable.pepe_message_message_pointer, 4, "MainRAM")]
-        ) 
+        )
 
         messageAddress = data[0]
         # strip the \x80 from the message address pointer
