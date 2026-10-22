@@ -250,7 +250,7 @@ ntsc_addresses = AddressTable(
         LevelName.POKER_FACES: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF57, start=0x14CFAD, name="Push Blocks"), # Pushing Block game
-                MiniGameAddress(retry=0x14D52F, start=0x14D574, name="Shoot Paratargets"), # Chicken shooter target mini-game near Beaker
+                MiniGameAddress(retry=0x14D52F, start=0x14D574, name="Shoot the Paragliders"), # Chicken shooter target mini-game near Beaker
             ]
         ),
         LevelName.GRAVE_MATTERS: MiniGameTable(
@@ -261,7 +261,7 @@ ntsc_addresses = AddressTable(
         LevelName.MOLTEN_MAYHEM: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF2B, start=0x14CF7C, name="Ghost Chase"), # Chasing the ghost game
-                MiniGameAddress(retry=0x14D08F, start=0x14D0F0, name="Shoot Lava Targets"), # Shoot targets that rise up out of the 
+                MiniGameAddress(retry=0x14D08F, start=0x14D0F0, name="Shoot the Lava Targets"), # Shoot targets that rise up out of the 
             ]
         ),
         LevelName.SHIVERING_TIMBER_SHOALS: MiniGameTable(
@@ -270,22 +270,21 @@ ntsc_addresses = AddressTable(
                 MiniGameAddress(retry=0x14D03E, start=0x14D0B1, name="Race the Pogo"), # Race against Simon the Pogoer
             ]
         ),
-        #TODO: I've tested up to here
         LevelName.HIKE_OF_THE_HAUNTED: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF17, start=0x14CF64, name="Gliding in Hoops"), # Glinding through Hoops
+                MiniGameAddress(retry=0x14CF17, start=0x14CF64, name="Fly Through Hoops"), # Glinding through Hoops
                 MiniGameAddress(retry=0x14D135, start=0x14D173, name="Totem Destruction"), # Destroying the Totems
             ]
         ),
         LevelName.THE_RIVER_VILE: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CFB5, start=0x14CFF7, name="Mimic Patterns"), # Match the pattern of colours
+                MiniGameAddress(retry=0x14CFB5, start=0x14CFF7, name="Cog Cycling"), # Match the pattern of colours
             ]
         ),
         LevelName.ESCAPE_CLAWS: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CEDC, start=0x14CF27, name="Mushroom Collecting"), # Collecting Toadstools
-                MiniGameAddress(retry=0x14D122, start=0x14D195, name="Race against Willie"), # Race against Wilie
+                MiniGameAddress(retry=0x14D122, start=0x14D195, name="Run Wolf Run"), # Race against Willie the little Wolf
             ]
         ),
         LevelName.CROAK_LAHOMA: MiniGameTable(
@@ -297,7 +296,7 @@ ntsc_addresses = AddressTable(
         LevelName.ARABIAN_FRIGHTS: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF17, start=0x14CFE1, name="Snake n Ladders"), # Climb the pillars to find the Snakes
-                MiniGameAddress(retry=0x14D100, start=0x14D173, name="Percy Races Again!"), # Race against Percy the Peacock
+                MiniGameAddress(retry=0x14D100, start=0x14D173, name="Flee the Fake Percy!"), # Race against Percy the Peacock
             ]
         ),
         LevelName.FEELING_FLUSHED: MiniGameTable(
@@ -305,6 +304,7 @@ ntsc_addresses = AddressTable(
                 MiniGameAddress(retry=0x14CED4, start=0x14CF2A, name="Block the Electricity"), # Move the blocks to stop the electricity
             ]
         ),
+        #TODO: Test from here
         LevelName.HUT_HUT_HIKE: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14D020, start=0x14D08C, name="Race the Shark"), # Race against the Shark

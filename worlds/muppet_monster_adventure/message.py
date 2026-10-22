@@ -22,11 +22,7 @@ class MessageDisplay:
     
     async def updateHubMessage(self, ctx: "BizHawkClientContext"):
         # Add a custom message for each mini-game
-        message = bytearray('Loading retrieved items... Loading...', 'ASCII')
-        message.extend(b'\x0A')
-        message.extend(b'Loading... Loading... Loading...', 'ASCII')
-        message.extend(b'\x0A')
-        message.extend(b'Loading... Loading... Loading???', 'ASCII')
+        message = bytearray('Loading retrieved items... Loading... Loading... Loading... Loading... Loading... Loading... Loading...', 'ASCII')
         message.extend(b'\x00')
         await bizhawk.write(
                 ctx.bizhawk_ctx,
@@ -43,9 +39,9 @@ class MessageDisplay:
 
         for minigame in gameAddresses.minigames:
             # Add a custom message for each mini-game
-            startGame = bytearray(minigame.name + ' press % to play', 'ASCII')
+            startGame = bytearray(minigame.name, 'ASCII')
             startGame.extend(b'\x0A')
-            startGame.extend(b'or & to cancel')
+            startGame.extend(b'Press % to play or & to cancel')
             startGame.extend(b'\x00')
             await bizhawk.write(
                     ctx.bizhawk_ctx,
