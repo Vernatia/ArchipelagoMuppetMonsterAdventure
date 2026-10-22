@@ -244,32 +244,33 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.HALLWAYS_OF_DOOM: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14D2AD, start=0x14E18D, name="Pumpkin Smash"), # Pumpkin Smashing game
+                MiniGameAddress(retry=0x14D2AD, start=0x14D30C, name="Smash the Armour"), # Smashing the Suits of Armour game
             ],
         ),
         LevelName.POKER_FACES: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF57, start=0x14CFAD, name="Push Blocks"), # Pushing Block game
-                MiniGameAddress(retry=0x14D52F, start=0x14D574, name="Chicken Targets"), # Chicken Target game
+                MiniGameAddress(retry=0x14D52F, start=0x14D574, name="Shoot Paratargets"), # Chicken shooter target mini-game near Beaker
             ]
         ),
         LevelName.GRAVE_MATTERS: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF64, start=0x14CFA2, name="Mimic Patterns"), # Mimic Memory game
+                MiniGameAddress(retry=0x14CF64, start=0x14CFA2, name="Spin the Skulls"), # Mimic Memory game
             ]
         ),
         LevelName.MOLTEN_MAYHEM: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF2B, start=0x14CF7C, name="Ghost Chase"), # Chasing the ghost game
-                MiniGameAddress(retry=0x14D08F, start=0x14D0F0, name="Chicken Targets"), # Another Chicken Target game
+                MiniGameAddress(retry=0x14D08F, start=0x14D0F0, name="Shoot Lava Targets"), # Shoot targets that rise up out of the 
             ]
         ),
         LevelName.SHIVERING_TIMBER_SHOALS: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CEDC, start=0x14CF1A, name="Shell Hunt"), # Hunting for Shells
-                MiniGameAddress(retry=0x14D03E, start=0x14D0B1, name="Race against Simon"), # Race against Simon
+                MiniGameAddress(retry=0x14D03E, start=0x14D0B1, name="Race the Pogo"), # Race against Simon the Pogoer
             ]
         ),
+        #TODO: I've tested up to here
         LevelName.HIKE_OF_THE_HAUNTED: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF17, start=0x14CF64, name="Gliding in Hoops"), # Glinding through Hoops
