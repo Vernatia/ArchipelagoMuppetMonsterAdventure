@@ -811,7 +811,7 @@ level_groups: list[LevelGroup] = [
             ),
             bonus=BonusLocationData(
                 b=[AbilityFlag.SWIM],
-                o=[],
+                o=[AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM],
                 n=[AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE],
                 u=[AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE | AbilityFlag.SWIM],
                 s=[AbilityFlag.SWIM],
@@ -819,7 +819,7 @@ level_groups: list[LevelGroup] = [
             ),
             tokens=[
                 TokenLocationData(
-                    "In the bayou?",
+                    "In the bayou",
                     [AbilityFlag.GLOVE | AbilityFlag.CLIMB | AbilityFlag.GLIDE],
                 ),
                 TokenLocationData(
