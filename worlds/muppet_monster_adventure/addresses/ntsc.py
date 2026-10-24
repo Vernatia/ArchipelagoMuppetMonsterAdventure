@@ -260,7 +260,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.MOLTEN_MAYHEM: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF2B, start=0x14CF7C, name="Ghost Chase"), # Chasing the ghost game
+                MiniGameAddress(retry=0x14CF2B, start=0x14CF7C, name="Ghost Buster"), # Chasing the ghost game
                 MiniGameAddress(retry=0x14D08F, start=0x14D0F0, name="Shoot the Lava Targets"), # Shoot targets that rise up out of the 
             ]
         ),
@@ -289,7 +289,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.CROAK_LAHOMA: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF33, start=0x14CF84, name="Ghost Hunt"), # Hunting for a Ghost
+                MiniGameAddress(retry=0x14CF33, start=0x14CF84, name="Ghost Buster Again"), # Hunting for a Ghost
                 MiniGameAddress(retry=0x14D1A8, start=0x14D207, name="Smashing Barrels"), # Smashing the Barrels around the level
             ]
         ),
@@ -304,7 +304,6 @@ ntsc_addresses = AddressTable(
                 MiniGameAddress(retry=0x14CED4, start=0x14CF2A, name="Block the Electricity"), # Move the blocks to stop the electricity
             ]
         ),
-        #TODO: Test from here
         LevelName.HUT_HUT_HIKE: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14D020, start=0x14D08C, name="Race the Shark"), # Race against the Shark
@@ -313,7 +312,7 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.TEMPLE_OF_PORK: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF1F, start=0x14CF90, name="Hunt For Gold"), # Find the Golden Statues on the level
+                MiniGameAddress(retry=0x14CF1F, start=0x14CF90, name="Hunt For the Golden Idol"), # Find the Golden Statues on the level
                 MiniGameAddress(retry=0x14D0E1, start=0x14D132, name="Push More Blocks"), # Move even more blocks
             ]
         ),
@@ -324,19 +323,19 @@ ntsc_addresses = AddressTable(
         ),
         LevelName.THE_MONSTERY_MONASTERY: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF0C, start=0x14CF4E, name="Ghost Hunt"), # Looking for a ghost again
+                MiniGameAddress(retry=0x14CF0C, start=0x14CF4E, name="Ghost Buster Afterlife"), # Looking for a ghost again
             ]
         ),
         LevelName.ICE_TO_MEETCHA: MiniGameTable(
             minigames=[
-                MiniGameAddress(retry=0x14CF64, start=0x14CFAC, name="Bird Shot"), # Shooting at birds with the chicken gun
-                MiniGameAddress(retry=0x14D1B7, start=0x14D20A, name="Smashing the Statues"), # Smashing Statues around the level
+                MiniGameAddress(retry=0x14CF64, start=0x14CFAC, name="Shoot Mr Popper's Penguins"), # Shooting at birds with the chicken gun
+                MiniGameAddress(retry=0x14D1B7, start=0x14D20A, name="The Statues Smashes Back"), # Smashing Statues around the level
             ]
         ),
         LevelName.FOR_PETONS_SAKE: MiniGameTable(
             minigames=[
                 MiniGameAddress(retry=0x14CF1F, start=0x14CF6B, name="Glinding Around"), # Gliding mini-game
-                MiniGameAddress(retry=0x14D054, start=0x14D0C0, name="Race against Charles"), # Race against Charles
+                MiniGameAddress(retry=0x14D054, start=0x14D0C0, name="Race against Charles the Penguin"), # Race against Charles the Penguin
             ]
         ),
     },
