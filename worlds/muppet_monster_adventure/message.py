@@ -93,7 +93,4 @@ class MessageDisplay:
         if isMiniGame:
             return
 
-        #TODO: Remove this debug once all the mini-games are found and tested
-        print('Memory: ' + str(converted))
-        print(self.revertMemoryAddress(converted))
         await self.clearPepeMessage(ctx)
