@@ -52,9 +52,9 @@ The Muppet Monster Adventure randomizer has the follow items:
   - *Yip Yip Yip* - Heal one health, up to your maximum health
   - *Delicious Cookie! Om nom nom* - The cookie is so tasty your maximum health is increased by 1
   - *Kissy Kissy* - Miss Piggy gives you a kiss, granting you an extra life
-  - *Ethel's Rifle* - Ethel the Chicken gives you 1 minute of the Chicken Glove power
-  - *Stephanie's Shotgun* - Stephanie the Chicken has more ammo, so you get 2 minutes of the Chicken Glove power
-  - *Camilla's Cannon* - Camilla the Chicken enjoys a bit of mayhem, granting you 5 minutes of the Chicken Glove power
+  - *Ethel's Rifle* - Ethel the Chicken gives you 15 seconds of the Chicken Glove power
+  - *Stephanie's Shotgun* - Stephanie the Chicken has more ammo, so you get 30 seconds of the Chicken Glove power [Normal default Chicken length]
+  - *Camilla's Cannon* - Camilla the Chicken enjoys a bit of mayhem, granting you 1 minute of the Chicken Glove power
   - *Hoobygoop Covered Hoobybun* - These Hoobybuns are so tasty, you'll fully heal!
 
 * **Trap** - These items are **Trap** items, and usually hinder your adventure, but are usually reset on death
