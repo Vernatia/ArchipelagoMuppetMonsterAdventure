@@ -89,8 +89,8 @@ required_items_table: Sequence[MMAItemData] = [
 
 __all_items_table: Sequence[MMAItemData] = [
     *required_items_table,
-    *filler_items_table,
     *trap_items_table,
+    *filler_items_table,
 ]
 
 item_name_to_id: dict[str, int] = {}
