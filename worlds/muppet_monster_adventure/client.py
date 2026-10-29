@@ -702,7 +702,7 @@ class MMAClient(BizHawkClient):
 
         match cmd:
             case "Connected":
-                if ctx.slot_data is not None:
+                if ctx.slot_data is not None and "goal_count" in ctx.slot_data:
                     self.goal_target = ctx.slot_data["goal_count"] or 6
                 # Ensure to reset the state in case something has changed here.
                 self.reset_state()
