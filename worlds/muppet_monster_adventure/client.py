@@ -23,6 +23,7 @@ from .locations import (
     location_type_lookup_by_region,
     region_lookup,
 )
+from .message import MessageDisplay
 from .shared import (
     AbilityFlag,
     FillerType,
@@ -32,7 +33,6 @@ from .shared import (
     TrapType,
     game_name,
 )
-from .message import MessageDisplay
 
 
 class MMAAddressTableConsumer:
@@ -405,7 +405,6 @@ class MMAGameState(MMAAddressTableConsumer):
                 ],
             )
         else:
-            # TODO: we need to write the cheat (or an alternative) that allows you to always return to the Hub.
             await self.player.write_flags(ctx)
         return True
 
