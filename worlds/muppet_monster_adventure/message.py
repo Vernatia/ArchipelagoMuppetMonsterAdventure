@@ -19,17 +19,28 @@ class MessageDisplay:
     def revertMemoryAddress(self, address: int):
         """Reverts an int address to Big Endian"""
         return address.to_bytes(3, 'big')
-    
+
+    async def writeToMemory(self, ctx: "BizHawkClientContext", messages: list, addresses: list):
+        """Write messages to addresses, messages will be joined by new line, and the result written to all addresses"""
+        outputMessage = bytearray(messages.pop(0), 'ASCII')
+        for message in messages:
+            outputMessage.extend(b'\x0A')
+            outputMessage.extend(message.encode('ASCII'))
+
+        outputMessage.extend(b'\x00')
+
+        outputAddresses = list()
+        for address in addresses:
+            outputAddresses.append((address, outputMessage, "MainRAM"))
+
+        await bizhawk.write(ctx.bizhawk_ctx, outputAddresses)
+
     async def updateHubMessage(self, ctx: "BizHawkClientContext"):
-        # Add a custom message for each mini-game
-        message = bytearray('Loading retrieved items... Loading... Loading... Loading... Loading... Loading... Loading... Loading...', 'ASCII')
-        message.extend(b'\x00')
-        await bizhawk.write(
-                ctx.bizhawk_ctx,
-                [
-                    (self.addressTable.level_hub_message, message, "MainRAM"),
-                ],
-            )
+        await self.writeToMemory(
+            ctx,
+            ['Loading retrieved items... Loading... Loading... Loading... Loading... Loading... Loading... Loading...'],
+            [self.addressTable.level_hub_message]
+        )
 
     async def updateMiniGameMessages(self, ctx: "BizHawkClientContext", levelName: str):
         """Sets the Start Message for all mini-games to a known string"""
@@ -39,17 +50,16 @@ class MessageDisplay:
 
         for minigame in gameAddresses.minigames:
             # Add a custom message for each mini-game
-            startGame = bytearray(minigame.name, 'ASCII')
-            startGame.extend(b'\x0A')
-            startGame.extend(b'Press % to play or & to cancel')
-            startGame.extend(b'\x00')
-            await bizhawk.write(
-                    ctx.bizhawk_ctx,
-                    [
-                        (minigame.start, startGame, "MainRAM"),
-                        (minigame.retry, startGame, "MainRAM"),
-                    ],
-                )
+            await self.writeToMemory(
+                ctx,
+                [
+                    minigame.name,
+                    'Press % to play or & to cancel.'
+                ], [
+                    minigame.start,
+                    minigame.retry
+                ]
+            )
 
     async def clearPepeMessage(self, ctx: "BizHawkClientContext"):
         await bizhawk.write(
