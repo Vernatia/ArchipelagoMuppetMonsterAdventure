@@ -976,7 +976,7 @@ level_groups: list[LevelGroup] = [
                     "Gliding minigame",
                     [AbilityFlag.GLOVE | AbilityFlag.SMASH | AbilityFlag.GLIDE],
                 ),
-                TokenLocationData(
+                MinigameTokenLocationData(
                     "Race Charlie",
                     [AbilityFlag.GLOVE | AbilityFlag.SMASH | AbilityFlag.GLIDE],
                 ),
