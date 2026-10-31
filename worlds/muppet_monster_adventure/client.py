@@ -462,7 +462,7 @@ class MMAGameState(MMAAddressTableConsumer):
             )
             if not self.messageDisplay.getLevelUpdated():
                 await self.messageDisplay.updateHubMessage(ctx)
-            elif not ctx.slot_data['disable_pepe_messages']:
+            elif ctx.slot_data['disable_pepe_messages']:
                 await self.messageDisplay.clearPepeMessage(ctx)
         else:
             # Disable Pepe's UI messages
