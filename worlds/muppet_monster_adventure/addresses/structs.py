@@ -116,6 +116,9 @@ class AddressTable(NamedTuple):
     chicken_timer: int
     """Timer for the Chicken Gun (4 bytes) - signed"""
 
+    pepe_message_pointer_start: int
+    """The location the Pepe messages start (4 bytes) - signed"""
+
     level_pickup_data: dict[LevelName, LevelPickupTable]
     """Lists the memory addresses of pickups, for each level"""
 

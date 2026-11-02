@@ -30,6 +30,7 @@ ntsc_addresses = AddressTable(
     last_pickup=0x0B8698,
     mini_game_timer=0x0CA32C,
     chicken_timer=0x0B7F20,
+    pepe_message_pointer_start=0x14CE90,
     # Cheat locations in the memory
     cheat_menu_level_select=0x0AF184,
     cheat_permanent_level_unlock=0x0AF0F8,
