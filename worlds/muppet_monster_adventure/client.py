@@ -470,6 +470,7 @@ class MMAGameState(MMAAddressTableConsumer):
                 activeLevel = self.level_states[self.active_level_name]
                 if ctx.slot_data['reword_minigame_messages'] and not self.messageDisplay.getLevelUpdated():
                     await self.messageDisplay.updateMiniGameMessages(ctx, activeLevel.region.name)
+                    await self.messageDisplay.disablePepeNonMinigames(ctx, activeLevel.region.name)
 
                 if ctx.slot_data['disable_pepe_messages']:
                     await self.messageDisplay.disablePepeMessages(ctx, activeLevel.region.name)
