@@ -95,6 +95,8 @@ class MessageDisplay:
             index = index + 1
 
         await bizhawk.write(ctx.bizhawk_ctx, clearPointers)
+        
+        self.levelMessageUpdated = True
 
     async def updateMiniGameMessages(self, ctx: "BizHawkClientContext", levelName: str):
         """Sets the Start Message for all mini-games to a known string"""
